@@ -1,0 +1,29 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Result - QUIZZZ</title>
+    <link rel="stylesheet" href="{% static 'quizzes/css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'quizzes/css/exam.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    {% include 'quizzes/_navbar.html' %}
+
+    <main class="container" style="padding:80px 0;">
+        <div class="result-container">
+            <h2>Chúc mừng! Bạn đã hoàn thành bài thi</h2>
+            <p>{{ result.title }}</p>
+            <p>Hoàn thành trong {{ result.duration }} phút</p>
+            <div class="result-score">{{ result.score }}/{{ result.total }} điểm</div>
+            <div class="result-buttons">
+                <button class="btn btn-green">Thử làm lại</button>
+                <button class="btn btn-yellow">Xem đáp án chi tiết</button>
+                <button class="btn btn-green" onclick="location.href='{% url 'home' %}'">Làm các đề môn Tiếng Anh khác</button>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

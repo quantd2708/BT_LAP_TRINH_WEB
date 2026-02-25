@@ -1,0 +1,164 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ subject_name }} - QUIZZZ</title>
+    <link rel="stylesheet" href="{% static 'quizzes/css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'quizzes/css/quiz_list.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <h1 class="logo">QUIZZZ</h1>
+            <ul class="nav-links">
+                <li><a href="#">History</a></li>
+                <li><a href="#">Subjects</a></li>
+                <li><a href="#">Account</a></li>
+            </ul>
+        </div>
+
+        <div class="nav-right">
+            <div class="search-bar">
+                <input type="text" placeholder="Search...">
+                <i class="fas fa-search"></i>
+            </div>
+            <div class="user-icon"><i class="fas fa-user-circle"></i></div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container" style="margin-top: 40px;">
+        <!-- Section Header -->
+        <div class="header-nav">
+            <div class="header-left-group">
+                <a href="{% url 'subject_list' %}" class="back-button">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+                <h3 class="header-title"><span class="line"></span> {{ subject_name }}</h3>
+            </div>
+            <div class="header-right-group">
+                <div class="search-box" style="background: white; border: 1px solid #ddd; border-radius: 5px;">
+                    <input type="text" placeholder="Find quiz...">
+                    <i class="fas fa-search"></i>
+                </div>
+                <a href="{% url 'create_quiz' %}" class="btn-add-quiz" style="width: auto; padding: 10px 20px; text-decoration: none; display: inline-block;">+ Add Quiz</a>
+            </div>
+        </div>
+
+        <!-- Quiz List -->
+        <div class="quiz-list">
+            {% for quiz in quizzes %}
+            <div class="quiz-item">
+                <div class="quiz-header">
+                    <div class="quiz-title-section">
+                        <h3 class="quiz-title">{{ quiz.title }}</h3>
+                    </div>
+                    <div class="quiz-actions">
+                        <button class="action-btn edit-btn" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn delete-btn" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="quiz-meta">
+                    <span class="subject-tag">{{ quiz.subject }}</span>
+                </div>
+
+                <div class="quiz-info">
+                    <span class="info-item">
+                        <i class="fas fa-circle"></i>
+                        {{ quiz.questions }} questions
+                    </span>
+                    <span class="info-item">
+                        <i class="fas fa-clock"></i>
+                        {{ quiz.duration }} mins
+                    </span>
+                </div>
+
+                <div class="quiz-footer">
+                    <a href="{% url 'exam' quiz.id %}" class="btn-start">Take Quiz</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById('addQuizModal');
+        const addQuizBtn = document.getElementById('addQuizBtn');
+        const closeBtn = document.querySelector('.close');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const form = document.getElementById('addQuizForm');
+
+        // Open modal
+        addQuizBtn.addEventListener('click', function() {
+            modal.style.display = 'block';
+        });
+
+        // Close modal when clicking X button
+        closeBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+            form.reset();
+        });
+
+        // Close modal when clicking Cancel button
+        cancelBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+            form.reset();
+        });
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(e) {
+            if (e.target == modal) {
+                modal.style.display = 'none';
+                form.reset();
+            }
+        });
+
+        // Handle form submission
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            console.log('Form submitted');
+            console.log('Quiz Title:', document.getElementById('quizTitle').value);
+            console.log('Questions:', document.getElementById('quizQuestions').value);
+            console.log('Duration:', document.getElementById('quizDuration').value);
+            modal.style.display = 'none';
+            form.reset();
+        });
+
+        // Back button functionality
+        document.querySelector('.back-button').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.history.back();
+        });
+
+        // Delete button functionality
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (confirm('Are you sure you want to delete this quiz?')) {
+                    this.closest('.quiz-item').remove();
+                }
+            });
+        });
+
+        // Edit button functionality
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                console.log('Edit quiz:', this.closest('.quiz-item'));
+            });
+        });
+
+
+    </script>
+</body>
+</html>

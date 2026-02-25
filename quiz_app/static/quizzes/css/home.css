@@ -1,0 +1,354 @@
+/* CSS Variables */
+:root {
+    --dark-blue: #1a3a52;
+    --light-gray: #f5f5f5;
+    --border-color: #ddd;
+}
+
+/* Navbar Styles - Chỉnh sửa để đẩy sang 2 góc */
+/* Navbar Styles - Đã tối ưu để giãn 2 đầu */
+.navbar { 
+    background: var(--dark-blue); 
+    color: white; 
+    padding: 0 5%; /* Dùng % để linh hoạt theo màn hình */
+    display: flex; 
+    justify-content: space-between; /* Buộc Left và Right phải tách xa nhau */
+    align-items: center; 
+    height: 70px; 
+    width: 100%; /* Đảm bảo luôn trải dài hết màn hình */
+    box-sizing: border-box; /* Giữ padding không làm tràn chiều ngang */
+}
+
+/* Đảm bảo khối này chiếm không gian linh hoạt */
+.nav-left { 
+    display: flex; 
+    align-items: center; 
+    gap: 60px; /* Giãn cách Logo và Menu */
+}
+
+/* Kiểu chữ Logo giống trang Quizzz */
+.logo {
+    font-size: 26px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin: 0;
+}
+
+.nav-links { 
+    display: flex; 
+    list-style: none; 
+    padding: 0; 
+    margin: 0;
+    gap: 35px; 
+}
+
+.nav-links a { 
+    color: #ced4da; /* Màu chữ xám nhẹ cho các mục chưa active */
+    text-decoration: none; 
+    font-size: 15px; 
+}
+
+.nav-links a.active, .nav-links a:hover { 
+    color: white; 
+    font-weight: bold; 
+}
+
+.nav-right { 
+    display: flex; 
+    align-items: center; 
+    gap: 25px; 
+}
+
+.search-bar { 
+    position: relative; 
+}
+
+/* Tăng chiều rộng thanh tìm kiếm theo thiết kế */
+.search-bar input { 
+    padding: 10px 40px 10px 15px; 
+    border-radius: 5px; 
+    border: none; 
+    width: 320px; 
+    outline: none;
+}
+
+.search-bar i { 
+    position: absolute; 
+    right: 12px; 
+    top: 50%; 
+    transform: translateY(-50%); 
+    color: #999; 
+}
+
+.user-icon { 
+    font-size: 32px; 
+}
+
+/* Body và chung */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: var(--light-gray);
+    color: #333;
+}
+
+/* Container chính */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Hero Banner */
+.hero-banner {
+    background: linear-gradient(135deg, var(--dark-blue) 0%, #2d5a7b 100%);
+    color: white;
+    padding: 80px 20px;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.hero-banner h2 {
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.hero-banner p {
+    font-size: 18px;
+    opacity: 0.95;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Section Styles */
+.section {
+    margin-bottom: 60px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+}
+
+.section-header h3 {
+    font-size: 24px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.line {
+    display: inline-block;
+    width: 4px;
+    height: 24px;
+    background: var(--dark-blue);
+    border-radius: 2px;
+}
+
+.view-all {
+    color: var(--dark-blue);
+    text-decoration: none;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: gap 0.3s;
+}
+
+.view-all:hover {
+    gap: 12px;
+}
+
+/* Grid Container */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.grid-container.quizzes {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+
+/* Subject Card */
+.subject-card {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    min-height: 280px;
+}
+
+.subject-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.subject-card h4 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.subject-card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+}
+
+.card-footer span {
+    font-size: 14px;
+    color: #999;
+}
+
+.card-footer a {
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+/* Quiz Card */
+.quiz-card {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+}
+
+.quiz-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.quiz-card h4 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.subject-tag {
+    display: inline-block;
+    background: #f0f0f0;
+    color: var(--dark-blue);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    width: fit-content;
+}
+
+.quiz-info {
+    display: flex;
+    gap: 25px;
+    margin-bottom: 20px;
+    color: #666;
+    font-size: 14px;
+}
+
+.quiz-info i {
+    color: var(--dark-blue);
+    margin-right: 5px;
+}
+
+/* Button Styles */
+.btn-start {
+    background: #2ecc71; /* changed to green */
+    color: white !important;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 14px;
+    margin-top: auto;
+}
+
+.btn-start:hover {
+    background: #2d5a7b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(26, 58, 82, 0.3);
+}
+
+.btn-start:active {
+    transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        height: auto;
+        gap: 15px;
+        padding: 15px 5%;
+    }
+    
+    .nav-left {
+        width: 100%;
+        gap: 15px;
+    }
+    
+    .nav-right {
+        width: 100%;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .search-bar input {
+        width: 100%;
+    }
+    
+    .hero-banner h2 {
+        font-size: 36px;
+    }
+    
+    .grid-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        gap: 15px;
+    }
+}
