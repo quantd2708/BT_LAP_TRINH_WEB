@@ -11,7 +11,7 @@
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar">
+    {% comment %} <nav class="navbar">
         <div class="nav-left">
             <h1 class="logo">QUIZZZ</h1>
             <ul class="nav-links">
@@ -28,8 +28,8 @@
             </div>
             <div class="user-icon"><i class="fas fa-user-circle"></i></div>
         </div>
-    </nav>
-
+    </nav> {% endcomment %}
+    {% include 'quizzes/_navbar.html' %}
     <!-- Main Content -->
     <main class="container" style="margin-top: 40px;">
         <!-- Section Header -->

@@ -6,15 +6,34 @@ def home_view(request):
     return render(request, 'quizzes/home.html')
 
 def subject_list_view(request):
-    # Dữ liệu giả (Dummy data) để hiển thị giao diện
+    # If a search query is provided, we could filter subjects later
+    query = request.GET.get('q', '').strip()
     dummy_subjects = [
         {'subject_name': 'Marxist-Leninist Philosophy', 'quiz_count': 80},
         {'subject_name': 'Ho Chi Minh Ideology', 'quiz_count': 72},
         {'subject_name': 'General Law', 'quiz_count': 63},
     ]
-    
-    # Gửi dummy_subjects sang template
-    return render(request, 'quizzes/subject_list.html', {'subjects': dummy_subjects})
+    # simple filter for demonstration
+    if query:
+        dummy_subjects = [s for s in dummy_subjects if query.lower() in s['subject_name'].lower()]
+    return render(request, 'quizzes/subject_list.html', {'subjects': dummy_subjects, 'query': query})
+
+
+def search_view(request):
+    # quiz search results page
+    q = request.GET.get('q', '').strip()
+    # dummy quizzes (could be filtered by q)
+    dummy_quizzes = [
+        {'title': 'toán đh', 'questions': 25, 'duration': 45},
+        {'title': 'BÀI 9: GIAO TIẾP AN TOÀN TRÊN INTERNET', 'questions': 50, 'duration': 45},
+        {'title': 'Trắc nghiệm kế toán lương 3', 'questions': 20, 'duration': 45},
+        {'title': 'TRẮC NGHIỆM KẾ TOÁN LƯƠNG', 'questions': 20, 'duration': 45},
+        {'title': 'Trắc nghiệm kế toán lương và các khoản trích theo lương', 'questions': 20, 'duration': 45},
+        {'title': 'Đề thi thử tốt nghiệp THPT 2025 môn Toán -THPT Yên Lạc - Vĩnh Phúc', 'questions': 22, 'duration': 90},
+    ]
+    if q:
+        dummy_quizzes = [z for z in dummy_quizzes if q.lower() in z['title'].lower()]
+    return render(request, 'quizzes/search.html', {'quizzes': dummy_quizzes, 'query': q})
 
 def quiz_list_view(request):
     # Dữ liệu giả cho danh sách đề thi
@@ -102,3 +121,28 @@ def result_view(request, quiz_id):
         'total': 10
     }
     return render(request, 'quizzes/result.html', {'result': result})
+
+
+def history_view(request):
+    # dummy history entries
+    entries = [
+        {'title': 'Bài tập trắc nghiệm thì hiện tại đơn (Simple Present) online',
+         'time': '14:24 02/02/2026', 'correct': 5, 'total': 20},
+        {'title': 'Bài tập trắc nghiệm thì hiện tại tiếp diễn (Present Continuous) online',
+         'time': '14:27 02/02/2026', 'correct': 17, 'total': 20},
+        {'title': 'Thi thử trắc nghiệm ôn tập môn Pháp luật Đại Cương online - Đề #1',
+         'time': '00:41 02/02/2026', 'correct': 0, 'total': 40},
+        {'title': 'Thi thử trắc nghiệm ôn tập môn Tư tưởng Hồ Chí Minh online - Chương 6 - Đề 64',
+         'time': '18:23 25/01/2026', 'correct': 6, 'total': 25},
+        {'title': 'Thi thử trắc nghiệm ôn tập triết học Mác Lênin online - Chương 1 - Đề #42',
+         'time': '16:52 25/01/2026', 'correct': 4, 'total': 25},
+    ]
+    query = request.GET.get('q', '').strip()
+    if query:
+        entries = [e for e in entries if query.lower() in e['title'].lower()]
+    # compute percentage for display
+    for e in entries:
+        e['percent'] = int(e['correct'] * 100 / e['total']) if e['total'] else 0
+    # sorting not implemented but placeholder param
+    sort = request.GET.get('sort','')
+    return render(request, 'quizzes/history.html', {'entries': entries, 'query': query, 'sort': sort})

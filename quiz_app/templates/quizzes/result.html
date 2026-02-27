@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,14 +14,14 @@
 
     <main class="container" style="padding:80px 0;">
         <div class="result-container">
-            <h2>Chúc mừng! Bạn đã hoàn thành bài thi</h2>
+            <h2>Congratulations! You have completed the exam</h2>
             <p>{{ result.title }}</p>
-            <p>Hoàn thành trong {{ result.duration }} phút</p>
-            <div class="result-score">{{ result.score }}/{{ result.total }} điểm</div>
+            <p>Completed in {{ result.duration }} minutes</p>
+            <div class="result-score">{{ result.score }}/{{ result.total }} points</div>
             <div class="result-buttons">
-                <button class="btn btn-green">Thử làm lại</button>
-                <button class="btn btn-yellow">Xem đáp án chi tiết</button>
-                <button class="btn btn-green" onclick="location.href='{% url 'home' %}'">Làm các đề môn Tiếng Anh khác</button>
+                <button class="btn btn-green">Retake</button>
+                <button class="btn btn-yellow">View detailed answers</button>
+                <button class="btn btn-green" onclick="location.href='{% url 'home' %}'">Take other English quizzes</button>
             </div>
         </div>
     </main>

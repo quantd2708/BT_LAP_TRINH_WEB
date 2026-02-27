@@ -2,16 +2,28 @@
     <div class="nav-left">
         <h1 class="logo">QUIZZZ</h1>
         <ul class="nav-links">
-            <li><a href="#">History</a></li>
-            <li><a href="#">Subjects</a></li>
-            <li><a href="#">Account</a></li>
+            <li><a href="{% url 'history' %}">History</a></li>
+            <li><a href="{% url 'subject_list' %}">Subjects</a></li>
+            <li><a href="{% url 'account_list' %}">Account</a></li>
         </ul>
     </div>
     <div class="nav-right">
         <div class="search-bar">
-            <input type="text" placeholder="Search...">
+            <input type="text" id="navSearch" placeholder="Search...">
             <i class="fas fa-search"></i>
         </div>
         <div class="user-icon"><i class="fas fa-user-circle"></i></div>
     </div>
 </nav>
+<script>
+    // nav search: pressing enter goes to subject search page
+    const navInput = document.getElementById('navSearch');
+    if (navInput) {
+        navInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const q = navInput.value.trim();
+                window.location.href = '{% url "search" %}?q=' + encodeURIComponent(q);
+            }
+        });
+    }
+</script>

@@ -1,0 +1,71 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Exam History - LuyenThi</title>
+    <link rel="stylesheet" href="{% static 'quizzes/css/home.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    {% include 'quizzes/_navbar.html' %}
+    <main class="container" style="margin-top:40px;">
+        <div class="header-nav">
+            <div class="header-left-group">
+                {% comment %} <a href="{% url 'home' %}" class="back-button">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a> {% endcomment %}
+                <div>
+                    <h3 class="header-title"><span class="line"></span> Exam History</h3>
+                    <p style="margin:4px 0 0; color:#666; font-size:14px;">Review completed exams</p>
+                </div>
+            </div>
+            <div class="header-right-group" style="gap:10px;">
+                <div class="search-box">
+                    <input type="text" id="historySearch" placeholder="Search..." value="{{ query|default:'' }}">
+                    <i class="fas fa-search"></i>
+                </div>
+                <button class="btn-filter{% if sort == 'newest' %} active{% endif %}" id="sortNewestBtn">Newest</button>
+            </div>
+        </div>
+
+        <div class="history-list">
+            {% for e in entries %}
+            <div class="history-item">
+                <div class="history-info">
+                    <p class="history-title">{{ e.title }}</p>
+                    <p class="history-timestamp">Completed: {{ e.time }}</p>
+                </div>
+                <div class="history-right">
+                    <div class="history-stats">
+                        <div class="history-circle {% if e.percent >= 50 %}green{% else %}red{% endif %}">{{ e.percent }}%</div>
+                        <span>{{ e.correct }}/{{ e.total }} questions</span>
+                    </div>
+                    <a href="#" class="btn-retry">Retake</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+    <script>
+        const histInput = document.getElementById('historySearch');
+        if(histInput){
+            histInput.addEventListener('keypress', function(e){
+                if(e.key==='Enter'){
+                    const q = histInput.value.trim();
+                    window.location.href = '{% url "history" %}?q='+encodeURIComponent(q);
+                }
+            });
+        }
+        const sortBtn = document.getElementById('sortNewestBtn');
+        if(sortBtn){
+            sortBtn.addEventListener('click', function(){
+                const url = new URL(window.location.href);
+                url.searchParams.set('sort','newest');
+                window.location.href = url.toString();
+            });
+        }
+    </script>
+</body>
+</html>

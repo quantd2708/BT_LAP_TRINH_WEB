@@ -1,0 +1,59 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search - QUIZZZ</title>
+    <link rel="stylesheet" href="{% static 'quizzes/css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'quizzes/css/search.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    {% comment %} {% include 'quizzes/_navbar.html' %} {% endcomment %}
+
+    <main class="container" style="padding:40px 0;">
+        <a href="javascript:history.back()" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
+        <div class="search-bar-large">
+            <input type="text" id="searchInput" placeholder="Find quizzes or exercises" value="{{ query }}">
+            <button id="searchBtn" class="btn-start">Search</button>
+        </div>
+        <h3>Search results</h3>
+        <div class="grid-container quizzes">
+            {% for quiz in quizzes %}
+            <div class="quiz-card">
+                <h4>{{ quiz.title }}</h4>
+                <div class="quiz-info">
+                    <span><i class="far fa-question-circle"></i> {{ quiz.questions }} questions</span>
+                    <span><i class="far fa-clock"></i> {{ quiz.duration }} mins</span>
+                </div>
+                <a href="{% url 'exam' quiz.id|default:1 %}" class="btn-start">Take Quiz</a>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+    <script>
+        const input = document.getElementById('searchInput');
+        const btn = document.getElementById('searchBtn');
+        function doSearch(e) {
+            const q = input.value.trim();
+            if (e && e.type === 'keypress') {
+                // only submit when Enter pressed
+                if (e.key !== 'Enter') {
+                    return; // ignore other keys
+                }
+                // if shift+enter etc, still treat as enter
+            }
+            // if it came from Enter key we may want subject search
+            if (e && e.type === 'keypress' && e.key === 'Enter') {
+                window.location.href = '{% url "search" %}?q=' + encodeURIComponent(q);
+            } else {
+                window.location.href = '{% url "search" %}?q=' + encodeURIComponent(q);
+            }
+        }
+        input.addEventListener('keypress', doSearch);
+        btn.addEventListener('click', doSearch);
+    </script>
+</body>
+</html>

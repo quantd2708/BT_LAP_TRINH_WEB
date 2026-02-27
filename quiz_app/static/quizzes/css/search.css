@@ -1,0 +1,35 @@
+/* Styles specific to search results page */
+
+.back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #1a3a52;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.search-bar-large {
+    display: flex;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+/* spacing under heading */
+h3 {
+    margin-top: 30px;
+    margin-bottom: 20px;
+}
+.search-bar-large input {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.search-bar-large .btn-start {
+    padding: 10px 20px;
+}
+
+.grid-container.quizzes {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}

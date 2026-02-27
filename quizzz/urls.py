@@ -22,10 +22,13 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('register/', views.register_view, name='register'),
     path('login/', views.login_view, name='login'),
+     path('accounts/', views.account_list_view, name='account_list'),
+    path('history/', quiz_views.history_view, name='history'),
     path('home/', quiz_views.home_view, name='home'),
     path('subjects/', quiz_views.subject_list_view, name='subject_list'),
     path('quizzes/', quiz_views.quiz_list_view, name='quiz_list'),
     path('create-quiz/', quiz_views.create_quiz_view, name='create_quiz'),
     path('exam/<int:quiz_id>/', quiz_views.exam_view, name='exam'),
     path('result/<int:quiz_id>/', quiz_views.result_view, name='result'),
+    path('search/', quiz_views.search_view, name='search'),
 ]
