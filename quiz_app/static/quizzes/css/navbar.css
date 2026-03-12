@@ -1,0 +1,79 @@
+/* Navbar Styles - Chỉnh sửa để đẩy sang 2 góc */
+/* Navbar Styles - Đã tối ưu để giãn 2 đầu */
+.navbar {
+    background: var(--dark-blue);
+    color: white;
+    padding: 0 5%; /* Dùng % để linh hoạt theo màn hình */
+    display: flex;
+    justify-content: space-between; /* Buộc Left và Right phải tách xa nhau */
+    align-items: center;
+    height: 70px;
+    width: 100%; /* Đảm bảo luôn trải dài hết màn hình */
+    box-sizing: border-box; /* Giữ padding không làm tràn chiều ngang */
+}
+
+/* Đảm bảo khối này chiếm không gian linh hoạt */
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 60px; /* Giãn cách Logo và Menu */
+}
+
+/* Kiểu chữ Logo giống trang Quizzz */
+.logo {
+    font-size: 26px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin: 0;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: 35px;
+}
+
+.nav-links a {
+    color: #ced4da; /* Màu chữ xám nhẹ cho các mục chưa active */
+    text-decoration: none;
+    font-size: 15px;
+}
+
+.nav-links a.active, .nav-links a:hover {
+    color: white;
+    font-weight: bold;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.search-bar {
+    position: relative;
+}
+
+/* Tăng chiều rộng thanh tìm kiếm theo thiết kế */
+.search-bar input {
+    padding: 10px 40px 10px 15px;
+    border-radius: 5px;
+    border: none;
+    width: 320px;
+    outline: none;
+}
+
+.search-bar i {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+}
+
+.user-icon {
+    font-size: 32px;
+}

@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Account List - LuyenThi</title>
+    <link rel="stylesheet" href="{% static 'quizzes/css/navbar.css' %}">
     <link rel="stylesheet" href="{% static 'quizzes/css/home.css' %}">
     <!-- we pull in quiz_list.css for action button styles (edit/delete) -->
     <link rel="stylesheet" href="{% static 'quizzes/css/quiz_list.css' %}">
@@ -33,6 +34,7 @@
             <table class="account-table">
                 <thead>
                     <tr>
+                        <th style="display:none;">ID</th>
                         <th>User</th>
                         <th>Account</th>
                         <th>Password</th>
@@ -42,9 +44,10 @@
                 <tbody>
                     {% for user in users %}
                     <tr>
-                        <td>{{ user.name }}</td>
-                        <td>{{ user.account }}</td>
-                        <td>{{ user.password }}</td>
+                        <td style="display:none;">{{ user.id }}</td>
+                        <td>{{ user.full_name }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>••••••••</td>
                         <td>
                             <button class="action-btn edit-btn" title="Edit">
                                 <i class="fas fa-edit"></i>
@@ -92,6 +95,35 @@
         </div>
     </div>
 
+    <!-- modal for edit account -->
+    <div id="editAccountModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Account</h2>
+                <button class="close">&times;</button>
+            </div>
+            <form id="editAccountForm">
+                <input type="hidden" id="editUserId" name="user_id">
+                <div class="form-group">
+                    <label for="editFullName">Full name *</label>
+                    <input type="text" id="editFullName" name="full_name" required placeholder="Full name">
+                </div>
+                <div class="form-group">
+                    <label for="editUsername">Username *</label>
+                    <input type="text" id="editUsername" name="username" required placeholder="Username">
+                </div>
+                <div class="form-group">
+                    <label for="editPassword">New Password</label>
+                    <input type="password" id="editPassword" name="password" placeholder="New password">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" id="cancelEditAccount">Cancel</button>
+                    <button type="submit" class="btn-submit">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         // search redirect
         const acctInput = document.getElementById('accountSearch');
@@ -104,20 +136,100 @@
             });
         }
 
-        // modal logic
+        // modal logic for add/edit/delete
         const accModal = document.getElementById('addAccountModal');
         const addAccountBtn = document.getElementById('addAccountBtn');
         const closeAcc = document.querySelector('#addAccountModal .close');
         const cancelAcc = document.getElementById('cancelAddAccount');
         const accForm = document.getElementById('addAccountForm');
 
-        addAccountBtn.addEventListener('click', function() {
-            accModal.style.display = 'block';
+        const editModal = document.getElementById('editAccountModal');
+        const closeEdit = document.querySelector('#editAccountModal .close');
+        const cancelEdit = document.getElementById('cancelEditAccount');
+        const editForm = document.getElementById('editAccountForm');
+
+        function showModal(modal) {
+            modal.style.display = 'block';
+        }
+        function hideModal(modal) {
+            modal.style.display = 'none';
+        }
+
+        addAccountBtn.addEventListener('click', () => showModal(accModal));
+        closeAcc.addEventListener('click', () => hideModal(accModal));
+        cancelAcc.addEventListener('click', () => hideModal(accModal));
+
+        closeEdit.addEventListener('click', () => hideModal(editModal));
+        cancelEdit.addEventListener('click', () => hideModal(editModal));
+
+        window.addEventListener('click', function(e){
+            if (e.target === accModal) hideModal(accModal);
+            if (e.target === editModal) hideModal(editModal);
         });
-        closeAcc.addEventListener('click', () => { accModal.style.display='none'; accForm.reset(); });
-        cancelAcc.addEventListener('click', () => { accModal.style.display='none'; accForm.reset(); });
-        window.addEventListener('click', function(e){ if(e.target==accModal){ accModal.style.display='none'; accForm.reset(); }});
-        accForm.addEventListener('submit', function(e){ e.preventDefault(); console.log('new account'); accModal.style.display='none'; accForm.reset(); });
+
+        // submit add form via AJAX
+        accForm.addEventListener('submit', function(e){
+            e.preventDefault();
+            const data = new FormData(accForm);
+            fetch('{% url "add_account" %}', {
+                method: 'POST',
+                body: data,
+                headers: {'X-CSRFToken': '{{ csrf_token }}'}
+            }).then(r=>r.json()).then(res=>{
+                if(res.success){
+                    location.reload();
+                } else {
+                    alert(res.message);
+                }
+            });
+        });
+
+        // wire up edit buttons
+        document.querySelectorAll('.edit-btn').forEach(btn=>{
+            btn.addEventListener('click', function(){
+                const tr = this.closest('tr');
+                const id = tr.children[0].textContent.trim();
+                const name = tr.children[1].textContent.trim();
+                const username = tr.children[2].textContent.trim();
+                document.getElementById('editUserId').value = id;
+                document.getElementById('editFullName').value = name;
+                document.getElementById('editUsername').value = username;
+                document.getElementById('editPassword').value = '';
+                showModal(editModal);
+            });
+        });
+
+        editForm.addEventListener('submit', function(e){
+            e.preventDefault();
+            const data = new FormData(editForm);
+            fetch('{% url "edit_account" %}', {
+                method: 'POST',
+                body: data,
+                headers: {'X-CSRFToken': '{{ csrf_token }}'}
+            }).then(r=>r.json()).then(res=>{
+                if(res.success){ location.reload(); }
+                else alert(res.message);
+            });
+        });
+
+        // delete handlers
+        document.querySelectorAll('.delete-btn').forEach(btn=>{
+            btn.addEventListener('click', function(){
+                if(!confirm('Remove this user?')) return;
+                const tr = this.closest('tr');
+                const id = tr.children[0].textContent.trim();
+                const form = new FormData();
+                form.append('user_id', id);
+                fetch('{% url "delete_account" %}', {
+                    method: 'POST',
+                    body: form,
+                    headers: {'X-CSRFToken': '{{ csrf_token }}'}
+                }).then(r=>r.json()).then(res=>{
+                    if(res.success){ location.reload(); }
+                    else alert(res.message);
+                });
+            });
+        });
     </script>
 </body>
 </html>

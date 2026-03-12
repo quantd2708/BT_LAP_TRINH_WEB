@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ quiz.title }} - QUIZZZ</title>
+    <link rel="stylesheet" href="{% static 'quizzes/css/navbar.css' %}">
     <link rel="stylesheet" href="{% static 'quizzes/css/home.css' %}">
     <link rel="stylesheet" href="{% static 'quizzes/css/exam.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -17,27 +18,48 @@
             <h2>{{ quiz.title }}</h2>
         </div>
         <div class="exam-info">
-            <span><i class="far fa-question-circle"></i> {{ quiz.question_count }} câu hỏi</span>
+            <span><i class="far fa-question-circle"></i> {{ questions.count }} câu hỏi</span>
             <span><i class="far fa-clock"></i> {{ quiz.duration }} phút</span>
-            <span><i class="fas fa-language"></i> {{ quiz.language }}</span>
+            <span><i class="fas fa-book"></i> {{ quiz.subject.subject_name }}</span>
         </div>
 
-        <ol class="question-list">
-            {% for q in quiz.questions %}
-            <li class="question-item">
-                <div class="question-text">Câu {{ forloop.counter }}. {{ q.text }}</div>
-                <ul class="options">
-                    {% for opt in q.options %}
-                    <li><label><input type="radio" name="q{{ forloop.parentloop.counter }}"> {{ opt }}</label></li>
-                    {% endfor %}
-                </ul>
-            </li>
-            {% endfor %}
-        </ol>
+        <form method="POST" action="{% url 'exam' quiz.id %}" id="examForm">
+            {% csrf_token %}
+            <input type="hidden" name="time_spent" id="timeSpent" value="0">
 
-        <div class="exam-actions" style="text-align:center; margin-top:40px;">
-            <a href="#" class="btn-start" onclick="location.href='{% url 'result' quiz.id %}'">Bắt đầu</a>
-        </div>
+            <ol class="question-list">
+                {% for q in questions %}
+                <li class="question-item">
+                    <div class="question-text">Câu {{ forloop.counter }}. {{ q.content }}</div>
+                    <ul class="options">
+                        {% for opt in q.answers.all %}
+                        <li>
+                            <label style="cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                                <input type="radio" name="question_{{ q.id }}" value="{{ opt.id }}"> 
+                                {{ opt.content }}
+                            </label>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+                {% endfor %}
+            </ol>
+
+            <div class="exam-actions" style="text-align:center; margin-top:40px;">
+                <button type="submit" class="btn-start" onclick="return confirm('Bạn có chắc chắn muốn nộp bài không?');">Nộp Bài</button>
+            </div>
+        </form>
     </main>
+
+    <script>
+        // JS để tính thời gian làm bài từ lúc mở trang đến lúc bấm Nộp bài
+        const startTime = Date.now();
+        
+        document.getElementById('examForm').addEventListener('submit', function() {
+            const endTime = Date.now();
+            const timeSpentSeconds = Math.floor((endTime - startTime) / 1000);
+            document.getElementById('timeSpent').value = timeSpentSeconds;
+        });
+    </script>
 </body>
 </html>

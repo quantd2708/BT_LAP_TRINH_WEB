@@ -4,27 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <title>Home - LuyenThi</title>
+    <link rel="stylesheet" href="{% static 'quizzes/css/navbar.css' %}">
     <link rel="stylesheet" href="{% static 'quizzes/css/home.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    {% comment %} <nav class="navbar">
-        <div class="nav-left">
-            <h1 class="logo">QUIZZZ</h1>
-            <ul class="nav-links">
-                <li><a href="#">History</a></li>
-                <li><a href="#">Subjects</a></li>
-                <li><a href="#">Account</a></li>
-            </ul>
-        </div>
-        <div class="nav-right">
-            <div class="search-bar">
-                <input type="text" placeholder="Search...">
-                <i class="fas fa-search"></i>
-            </div>
-            <div class="user-icon"><i class="fas fa-user-circle"></i></div>
-        </div>
-    </nav> {% endcomment %}
+
     {% include 'quizzes/_navbar.html' %}
     <header class="hero-banner">
         <div class="container">
@@ -37,7 +22,7 @@
         <section class="section">
             <div class="section-header">
                 <h3><span class="line"></span> Subjects</h3>
-                <a href="#" class="view-all">View all <i class="fas fa-arrow-right"></i></a>
+                <a href="{% url 'subject_list' %}" class="view-all">View all <i class="fas fa-arrow-right"></i></a>
             </div>
             <div class="grid-container">
                 <div class="subject-card">
@@ -45,7 +30,7 @@
                     <img src="{% static 'quizzes/images/subject1.png' %}" alt="Philosophy">
                     <div class="card-footer">
                         <span>80 quizzes</span>
-                        <a href="#">View all <i class="fas fa-arrow-right"></i></a>
+                        <a href="{% url 'quiz_list' %}?subject=Marxist-Leninist Philosophy" class="btn-start" style="width: auto; padding: 5px 15px; font-size: 12px; text-decoration: none; color: white; display: inline-block;">View all </i></a>
                     </div>
                 </div>
                 </div>
@@ -63,7 +48,7 @@
                         <span><i class="far fa-question-circle"></i> 40 questions</span>
                         <span><i class="far fa-clock"></i> 40 mins</span>
                     </div>
-                    <button class="btn-start">Take Quiz</button>
+                    <a href="{% url 'exam' 1 %}" class="btn-start">Take Quiz</a>
                 </div>
             </div>
         </section>

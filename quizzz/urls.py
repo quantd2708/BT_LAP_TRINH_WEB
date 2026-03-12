@@ -14,15 +14,19 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf.urls.static import static
+from django.conf import settings
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from account_app import views
 from quiz_app import views as quiz_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('register/', views.register_view, name='register'),
     path('login/', views.login_view, name='login'),
-     path('accounts/', views.account_list_view, name='account_list'),
+    path('accounts/', include('account_app.urls')),
+    path('', include('quiz_app.urls')),
+    # account management handled in account_app.urls
     path('history/', quiz_views.history_view, name='history'),
     path('home/', quiz_views.home_view, name='home'),
     path('subjects/', quiz_views.subject_list_view, name='subject_list'),
@@ -31,4 +35,9 @@ urlpatterns = [
     path('exam/<int:quiz_id>/', quiz_views.exam_view, name='exam'),
     path('result/<int:quiz_id>/', quiz_views.result_view, name='result'),
     path('search/', quiz_views.search_view, name='search'),
+    path('list/', views.account_list_view, name='account_list'),
 ]
+
+# Đoạn này để cho phép trình duyệt truy cập thư mục media trong lúc dev
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -3,98 +3,49 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Quiz - QUIZZZ</title>
+    <title>Edit Quiz - QUIZZZ</title>
     <link rel="stylesheet" href="{% static 'quizzes/css/navbar.css' %}">
     <link rel="stylesheet" href="{% static 'quizzes/css/home.css' %}">
     <link rel="stylesheet" href="{% static 'quizzes/css/create_quiz.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Ẩn sidebar vì trang sửa chỉ cần khu vực làm việc chính */
+        .create-sidebar { display: none; }
+        .create-main { max-width: 900px; margin: 0 auto; }
+    </style>
 </head>
 <body>
-
     {% include 'quizzes/_navbar.html' %}
-    <main class="create-container">
-        <aside class="create-sidebar">
-            <div class="sidebar-header">
-                <span class="line"></span>
-                <h2>Create Quiz</h2>
-            </div>
-            <p class="sidebar-sub">Choose your creation method</p>
-            
-            <button class="mode-btn active" data-mode="ai">
-                <i class="fas fa-robot"></i>
-                <div class="btn-txt">
-                    <strong>Generate with AI</strong>
-                    <span>Auto-create from PDF</span>
-                </div>
-            </button>
-            
-            <button class="mode-btn" data-mode="manual">
-                <i class="fas fa-edit"></i>
-                <div class="btn-txt">
-                    <strong>Manual Creation</strong>
-                    <span>Build from scratch</span>
-                </div>
-            </button>
-        </aside>
-
+    <main class="create-container" style="justify-content: center;">
         <section class="create-main">
-            <div class="mode-content ai-mode">
-                <div class="work-area">
-                    <h3>Create Quiz with AI</h3>
-                    <p>Upload your PDF document and our AI will generate questions for you.</p>
-                    
-                    <div class="upload-zone">
-                        <div class="upload-box">
-                            <i class="fas fa-file-pdf pdf-icon"></i>
-                            <p><strong>Upload PDF file to start</strong></p>
-                            <span class="hint">Maximum size: 10MB</span>
-                            <button class="btn-outline">Choose file</button>
-                            <span class="hint">or drag and drop file here</span>
-                        </div>
-                    </div>
-                </div>
-
-                <aside class="config-panel">
-                    <h4>Configuration</h4>
-                    <div class="form-group">
-                        <label>Number of questions</label>
-                        <input type="number" min="1" placeholder="Auto" class="input-gray" id="ai-question-count">
-                    </div>
-                    <div class="ai-notice">
-                        <i class="fas fa-lightbulb"></i>
-                        <p>AI will analyze your document and generate multiple-choice questions automatically.</p>
-                    </div>
-                    <button class="btn-submit-full">Create Now</button>
-                </aside>
-            </div>
-
-            <div class="mode-content manual-mode" style="display:none;">
-                <form method="POST" action="{% url 'create_quiz' subject.id %}" class="manual-workspace" id="manualQuizForm">
+            <div class="mode-content manual-mode" style="display:flex; width: 100%;">
+                
+                <form method="POST" action="{% url 'edit_quiz' quiz.id %}" class="manual-workspace" id="manualQuizForm" style="width: 100%;">
                     {% csrf_token %}
-                    <input type="hidden" name="total_questions" id="totalQuestions" value="1">
+                    <input type="hidden" name="total_questions" id="totalQuestions" value="{{ quiz.questions.count }}">
                     
                     <div class="manual-header">
                         <div class="title-row">
-                            <input type="text" name="quiz_title" required placeholder="Enter quiz title..." class="quiz-title-input">
+                            <input type="text" name="quiz_title" value="{{ quiz.title }}" required placeholder="Enter quiz title..." class="quiz-title-input">
                         </div>
                         <div class="status-msg">
-                            <p class="hint">Please review and edit before publishing</p>
+                            <p class="hint">Đang chỉnh sửa đề thi của môn: <strong>{{ quiz.subject.subject_name }}</strong></p>
                         </div>
                         <div class="quiz-summary-bar">
-                            <span>Total: <strong>1 question</strong></span>
+                            <span>Total: <strong>{{ quiz.questions.count }} question(s)</strong></span>
                             <div class="time-limit">
-                                Duration: <input type="number" name="quiz_duration" value="45" required min="1"> mins
+                                Duration: <input type="number" name="quiz_duration" value="{{ quiz.duration }}" required min="1"> mins
                             </div>
-                            <button type="submit" class="btn-publish-side">Publish</button>
+                            <button type="submit" class="btn-publish-side">Update Quiz</button>
                         </div>
                     </div>
 
                     <div class="questions-container">
+                        {% for question in quiz.questions.all %}
                         <div class="question-card">
                             <div class="q-header">
                                 <div class="q-left">
-                                    <span class="q-number">1</span>
+                                    <span class="q-number">{{ forloop.counter }}</span>
                                     <span class="q-label">Question</span>
                                 </div>
                                 <div class="q-right">
@@ -103,51 +54,41 @@
                             </div>
                             
                             <div class="q-body">
-                                <textarea name="q_content_1" required placeholder="Type your question content here..."></textarea>
+                                <textarea name="q_content_{{ forloop.counter }}" required placeholder="Type your question content here...">{{ question.content }}</textarea>
                                 
                                 <div class="options-group">
-                                    <div class="option-row correct">
-                                        <input type="radio" name="q_correct_1" value="0" checked>
-                                        <input type="text" name="q_opt_1" required placeholder="Option A" value="Option A">
+                                    {% for answer in question.answers.all %}
+                                    <div class="option-row {% if answer.is_correct %}correct{% endif %}">
+                                        <input type="radio" name="q_correct_{{ forloop.parentloop.counter }}" value="{{ forloop.counter0 }}" {% if answer.is_correct %}checked{% endif %}>
+                                        <input type="text" name="q_opt_{{ forloop.parentloop.counter }}" required value="{{ answer.content }}">
                                         <button type="button" class="btn-del-opt"><i class="fas fa-times"></i></button>
                                     </div>
-                                    <div class="option-row">
-                                        <input type="radio" name="q_correct_1" value="1">
-                                        <input type="text" name="q_opt_1" required placeholder="Option B" value="Option B">
-                                        <button type="button" class="btn-del-opt"><i class="fas fa-times"></i></button>
-                                    </div>
+                                    {% endfor %}
                                 </div>
                                 <button type="button" class="btn-add-option">+ Add option</button>
                             </div>
                             
                             <div class="q-footer">
                                 <button type="button" class="btn-toggle-exp"><i class="fas fa-chevron-down"></i> Explanation</button>
+                                {% if question.explanation %}
+                                    <textarea class="explanation-area" name="q_explanation_{{ forloop.counter }}" style="width: 100%; margin-top: 10px;">{{ question.explanation }}</textarea>
+                                {% endif %}
                             </div>
                         </div>
+                        {% endfor %}
                     </div>
 
                     <div class="manual-actions-bottom">
                         <button type="button" class="btn-add-q-manual">+ Add question</button>
-                        <button type="submit" class="btn-publish-bottom">Publish</button>
+                        <button type="submit" class="btn-publish-bottom">Update Quiz</button>
                     </div>
                 </form>
+
             </div>
         </section>
     </main>
 
     <script>
-        // Chuyển đổi Mode AI / Manual
-        document.querySelectorAll('.mode-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                const mode = btn.getAttribute('data-mode');
-                document.querySelectorAll('.mode-content').forEach(c => c.style.display = 'none');
-                document.querySelector('.' + mode + '-mode').style.display = 'flex';
-            });
-        });
-
-        // Hàm quan trọng nhất: Đánh số lại toàn bộ name cho form
         function renumberCards() {
             const cards = document.querySelectorAll('.question-card');
             document.getElementById('totalQuestions').value = cards.length;
@@ -164,22 +105,19 @@
                 const num = card.querySelector('.q-number');
                 if (num) num.textContent = qIndex;
 
-                // Set name cho textarea nội dung câu hỏi
                 const qBody = card.querySelector('.q-body textarea:not(.explanation-area)');
                 if (qBody) qBody.name = `q_content_${qIndex}`;
 
-                // Set name cho textarea giải thích (nếu có)
                 const expArea = card.querySelector('.explanation-area');
                 if (expArea) expArea.name = `q_explanation_${qIndex}`;
 
-                // Set name và value cho các đáp án
                 const rows = card.querySelectorAll('.option-row');
                 rows.forEach((row, optIdx) => {
                     const radio = row.querySelector('input[type=radio]');
                     const txt = row.querySelector('input[type=text]');
                     if (radio) {
                         radio.name = `q_correct_${qIndex}`;
-                        radio.value = optIdx; // Value chính là thứ tự của đáp án (0, 1, 2...)
+                        radio.value = optIdx;
                     }
                     if (txt) {
                         txt.name = `q_opt_${qIndex}`;
@@ -198,7 +136,6 @@
                 }
             });
 
-            // Hiệu ứng màu xanh cho đáp án đúng
             const radio = row.querySelector('input[type=radio]');
             radio.addEventListener('change', () => {
                 const allRows = row.closest('.options-group').querySelectorAll('.option-row');
@@ -227,7 +164,7 @@
                 if (!expArea) {
                     expArea = document.createElement('textarea');
                     expArea.className = 'explanation-area';
-                    expArea.placeholder = 'Nhập giải thích cho câu hỏi này (nếu có)...';
+                    expArea.placeholder = 'Nhập giải thích...';
                     expArea.style.width = '100%';
                     expArea.style.marginTop = '10px';
                     card.querySelector('.q-footer').appendChild(expArea);
@@ -255,7 +192,6 @@
             card.querySelectorAll('.option-row').forEach(attachOptionListeners);
         }
 
-        // Thêm câu hỏi mới
         document.querySelector('.btn-add-q-manual').addEventListener('click', () => {
             const container = document.querySelector('.questions-container');
             const clone = document.createElement('div');
@@ -295,7 +231,6 @@
             renumberCards();
         });
 
-        // Khởi tạo lần đầu
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.question-card').forEach(attachCardListeners);
             renumberCards();

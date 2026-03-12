@@ -9,6 +9,13 @@
 <body>
     <div class="auth-container">
         <h2>Login</h2>
+        {% if messages %}
+            <div style="color: #e74c3c; background: #fadbd8; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 14px;">
+                {% for message in messages %}
+                    {{ message }}
+                {% endfor %}
+            </div>
+        {% endif %}
         <form method="POST">
             {% csrf_token %}
             <div class="form-group">

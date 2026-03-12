@@ -4,29 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Subjects - LuyenThi</title>
+    <link rel="stylesheet" href="{% static 'quizzes/css/navbar.css' %}">
     <link rel="stylesheet" href="{% static 'quizzes/css/home.css' %}">
     <link rel="stylesheet" href="{% static 'quizzes/css/subjects.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    {% comment %} <nav class="navbar">
-        <div class="nav-left">
-            <h1 class="logo">QUIZZZ</h1>
-            <ul class="nav-links">
-                <li><a href="#">History</a></li>
-                <li><a href="#" class="active">Subjects</a></li>
-                <li><a href="#">Account</a></li>
-            </ul>
-        </div>
 
-        <div class="nav-right">
-            <div class="search-bar">
-                <input type="text" placeholder="Search...">
-                <i class="fas fa-search"></i>
-            </div>
-            <div class="user-icon"><i class="fas fa-user-circle"></i></div>
-        </div>
-    </nav> {% endcomment %}
     {% include 'quizzes/_navbar.html' %}
     <main class="container" style="margin-top: 40px;">
         <div class="header-nav">
@@ -41,7 +25,9 @@
                     <input type="text" id="subjectSearch" placeholder="Find subject..." value="{{ query|default:'' }}">
                     <i class="fas fa-search"></i>
                 </div>
+                {% if user.is_authenticated and user.role == 'admin' %}
                 <button class="btn-start" id="addSubjectBtn" style="width: auto; padding: 10px 20px;">+ Add Subject</button>
+                {% endif %}
             </div>
         </div>
 
@@ -50,14 +36,25 @@
             <div class="subject-card">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                     <h4 class="subject-name">{{ subject.subject_name }}</h4>
-                    <button style="background: none; border: none; color: #999; cursor: pointer; font-size: 12px;">X Delete</button>
+                    {% if user.is_authenticated and user.role == 'admin' %}
+                        <form action="{% url 'delete_subject' subject.id %}" method="POST" style="display:inline;" onsubmit="return confirm('Bạn có chắc chắn muốn xóa môn học này? Các đề thi bên trong cũng sẽ bị xóa theo!');">
+                            {% csrf_token %}
+                            <button type="submit" style="background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 13px; font-weight: bold;">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </form>
+                    {% endif %}
                 </div>
                 
-                <img src="{% static 'quizzes/images/subject1.png' %}" alt="Subject" style="height: 150px; object-fit: cover;">
+                {% if subject.image %}
+                    <img src="{{ subject.image.url }}" alt="{{ subject.subject_name }}" style="height: 150px; object-fit: cover; width: 100%;">
+                {% else %}
+                    <img src="{% static 'quizzes/images/subject1.png' %}" alt="Default Subject" style="height: 150px; object-fit: cover; width: 100%;">
+                {% endif %}
                 
                 <div class="card-footer">
                     <span style="color: #999;">{{ subject.quiz_count }} quizzes</span>
-                    <a href="{% url 'quiz_list' %}" class="btn-start" style="width: auto; padding: 5px 15px; font-size: 12px; text-decoration: none; color: white; display: inline-block;">View all</a>
+                    <a href="{% url 'quiz_list' subject.id %}" class="btn-start" style="width: auto; padding: 5px 15px; font-size: 12px; text-decoration: none; color: white; display: inline-block;">View all</a>
                 </div>
             </div>
             {% endfor %}
@@ -71,7 +68,8 @@
                 <h2>Add New Subject</h2>
                 <button class="close">&times;</button>
             </div>
-            <form id="addSubjectForm">
+            <form id="addSubjectForm" action="{% url 'add_subject' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
                 <div class="form-group">
                     <label for="subjectName">Subject Name *</label>
                     <input type="text" id="subjectName" name="subject_name" required placeholder="Enter subject name">
@@ -95,42 +93,39 @@
         const cancelBtn = document.getElementById('cancelBtn');
         const form = document.getElementById('addSubjectForm');
 
-        // Mở modal
-        addSubjectBtn.addEventListener('click', function() {
-            modal.style.display = 'block';
-        });
+        // 1. Logic cho Modal Thêm môn học (Chỉ chạy khi có nút Add)
+        if (addSubjectBtn) {
+            // Mở modal
+            addSubjectBtn.addEventListener('click', function() {
+                modal.style.display = 'block';
+            });
 
-        // Đóng modal khi bấm nút X
-        closeBtn.addEventListener('click', function() {
-            modal.style.display = 'none';
-            form.reset();
-        });
-
-        // Đóng modal khi bấm Hủy
-        cancelBtn.addEventListener('click', function() {
-            modal.style.display = 'none';
-            form.reset();
-        });
-
-        // Đóng modal khi bấm ngoài modal
-        window.addEventListener('click', function(e) {
-            if (e.target == modal) {
-                modal.style.display = 'none';
-                form.reset();
+            // Đóng modal khi bấm nút X
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function() {
+                    modal.style.display = 'none';
+                    form.reset();
+                });
             }
-        });
 
-        // Xử lý submit form
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            // Ở đây bạn có thể gửi dữ liệu đến server bằng AJAX
-            console.log('Form submitted');
-            console.log('Subject Name:', document.getElementById('subjectName').value);
-            // Sau khi submit thành công, đóng modal
-            modal.style.display = 'none';
-            form.reset();
-        });
-        // search in subject list
+            // Đóng modal khi bấm Hủy
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', function() {
+                    modal.style.display = 'none';
+                    form.reset();
+                });
+            }
+
+            // Đóng modal khi bấm ngoài modal
+            window.addEventListener('click', function(e) {
+                if (e.target == modal) {
+                    modal.style.display = 'none';
+                    form.reset();
+                }
+            });
+        }
+
+        // 2. Logic Tìm kiếm môn học (Chạy độc lập)
         const subjInput = document.getElementById('subjectSearch');
         if (subjInput) {
             subjInput.addEventListener('keypress', function(e) {
