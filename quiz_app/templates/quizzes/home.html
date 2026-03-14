@@ -7,10 +7,21 @@
     <link rel="stylesheet" href="{% static 'quizzes/css/navbar.css' %}">
     <link rel="stylesheet" href="{% static 'quizzes/css/home.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* CSS cho thẻ img trong trang chủ để ảnh ko bị méo */
+        .subject-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+    </style>
 </head>
 <body>
 
     {% include 'quizzes/_navbar.html' %}
+    
     <header class="hero-banner">
         <div class="container">
             <h2>QUIZZZ</h2>
@@ -24,34 +35,60 @@
                 <h3><span class="line"></span> Subjects</h3>
                 <a href="{% url 'subject_list' %}" class="view-all">View all <i class="fas fa-arrow-right"></i></a>
             </div>
+            
             <div class="grid-container">
+                {% for subject in subjects %}
                 <div class="subject-card">
-                    <h4>Marxist-Leninist Philosophy</h4>
-                    <img src="{% static 'quizzes/images/subject1.png' %}" alt="Philosophy">
+                    <h4>{{ subject.subject_name }}</h4>
+                    
+                    {% if subject.image %}
+                        <img src="{{ subject.image.url }}" alt="{{ subject.subject_name }}">
+                    {% else %}
+                        <div style="width: 100%; height: 150px; background: #e1e8ed; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-bottom: 15px;">
+                            <i class="fas fa-book" style="font-size: 40px; color: #a0aec0;"></i>
+                        </div>
+                    {% endif %}
+                    
                     <div class="card-footer">
-                        <span>80 quizzes</span>
-                        <a href="{% url 'quiz_list' %}?subject=Marxist-Leninist Philosophy" class="btn-start" style="width: auto; padding: 5px 15px; font-size: 12px; text-decoration: none; color: white; display: inline-block;">View all </i></a>
+                        <span>{{ subject.quiz_count }} quizzes</span>
+                        <a href="{% url 'quiz_list' subject.id %}" class="btn-start" style="width: auto; padding: 5px 15px; font-size: 12px; text-decoration: none; color: white; display: inline-block;">View all</a>
                     </div>
                 </div>
-                </div>
+                {% empty %}
+                <p>Chưa có môn học nào trên hệ thống.</p>
+                {% endfor %}
+            </div>
         </section>
 
         <section class="section">
             <div class="section-header">
-                <h3><span class="line"></span> Featured University Quizzes</h3>
+                <h3><span class="line"></span> Trending Quizzes</h3>
             </div>
-            <div class="grid-container quizzes">
+            
+            <div class="grid-container quizzes" style="grid-template-columns: repeat(3, 1fr);"> {% for quiz in featured_quizzes %}
                 <div class="quiz-card">
-                    <h4>General Law Review Quiz #1</h4>
-                    <p class="subject-tag">General Law</p>
-                    <div class="quiz-info">
-                        <span><i class="far fa-question-circle"></i> 40 questions</span>
-                        <span><i class="far fa-clock"></i> 40 mins</span>
+                    <h4>{{ quiz.title }}</h4>
+                    <p class="subject-tag">{{ quiz.subject.subject_name }}</p>
+                    
+                    <div class="quiz-info" style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="display: flex; gap: 15px;">
+                            <span><i class="far fa-question-circle"></i> {{ quiz.question_count }} questions</span>
+                            <span><i class="far fa-clock"></i> {{ quiz.duration }} mins</span>
+                        </div>
+                        <span style="color: #e67e22; font-weight: bold;">
+                            <i class="fas fa-fire"></i> {{ quiz.attempt_count }} Attempts this month
+                        </span>
                     </div>
-                    <a href="{% url 'exam' 1 %}" class="btn-start">Take Quiz</a>
+                    
+                    <a href="{% url 'exam' quiz.id %}" class="btn-start" style="text-decoration: none; display: inline-block; text-align: center; margin-top: 15px;">Take Quiz</a>
                 </div>
+                {% empty %}
+                <p>There are no exams on the system yet.</p>
+                {% endfor %}
+
             </div>
         </section>
+        
     </main>
 </body>
 </html>

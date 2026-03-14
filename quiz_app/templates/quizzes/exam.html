@@ -9,9 +9,46 @@
     <link rel="stylesheet" href="{% static 'quizzes/css/home.css' %}">
     <link rel="stylesheet" href="{% static 'quizzes/css/exam.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* CSS cho đồng hồ đếm ngược ghim ở góc phải màn hình */
+        #countdown-timer {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background-color: #1a3a52; /* Màu xanh đen đồng bộ với theme */
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 22px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background-color 0.3s;
+        }
+
+        /* Hiệu ứng nhấp nháy cảnh báo khi sắp hết giờ */
+        @keyframes pulseAlert {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); background-color: #c0392b; }
+            100% { transform: scale(1); }
+        }
+        .time-warning {
+            background-color: #e74c3c !important; /* Đổi sang màu đỏ */
+            animation: pulseAlert 1s infinite;
+        }
+    </style>
 </head>
 <body>
     {% include 'quizzes/_navbar.html' %}
+
+    <div id="countdown-timer">
+        <i class="fas fa-stopwatch"></i>
+        <span id="time-display">--:--</span>
+    </div>
 
     <main class="container" style="padding:40px 0;">
         <div class="exam-header">
@@ -46,19 +83,75 @@
             </ol>
 
             <div class="exam-actions" style="text-align:center; margin-top:40px;">
-                <button type="submit" class="btn-start" onclick="return confirm('Bạn có chắc chắn muốn nộp bài không?');">Nộp Bài</button>
+                <button type="button" class="btn-start" id="btnSubmitExam">Submit Exam</button>
             </div>
         </form>
     </main>
 
     <script>
-        // JS để tính thời gian làm bài từ lúc mở trang đến lúc bấm Nộp bài
+        const examForm = document.getElementById('examForm');
         const startTime = Date.now();
         
-        document.getElementById('examForm').addEventListener('submit', function() {
+        // 1. CÀI ĐẶT ĐỒNG HỒ ĐẾM NGƯỢC
+        // Lấy thời gian từ CSDL (tính bằng phút) và đổi ra giây
+        let timeRemaining = parseInt("{{ quiz.duration|default:45 }}") * 60; 
+        const timeDisplay = document.getElementById('time-display');
+        const timerContainer = document.getElementById('countdown-timer');
+
+        function updateTimerDisplay() {
+            let minutes = Math.floor(timeRemaining / 60);
+            let seconds = timeRemaining % 60;
+            
+            // Format thêm số 0 đằng trước nếu nhỏ hơn 10 (VD: 09:05)
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            
+            timeDisplay.textContent = minutes + ':' + seconds;
+            
+            // Cảnh báo màu đỏ khi thời gian còn dưới 1 phút (60 giây)
+            if (timeRemaining <= 60 && timeRemaining > 0) {
+                timerContainer.classList.add('time-warning');
+            }
+        }
+
+        // Gọi ngay lần đầu để hiện số
+        updateTimerDisplay();
+
+        // Thiết lập bộ đếm chạy mỗi giây (1000ms)
+        const timerInterval = setInterval(function() {
+            timeRemaining--;
+            updateTimerDisplay();
+
+            // KHI HẾT GIỜ
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval); // Dừng đồng hồ
+                timeDisplay.textContent = "00:00";
+                
+                // Hiển thị thông báo (dùng setTimeout để DOM kịp update 00:00)
+                setTimeout(() => {
+                    alert("Đã hết thời gian làm bài! Hệ thống sẽ tự động thu bài của bạn.");
+                    submitExam(); // Tự động nộp
+                }, 100);
+            }
+        }, 1000);
+
+        // 2. HÀM XỬ LÝ NỘP BÀI
+        function submitExam() {
+            // Tính toán thời gian đã làm
             const endTime = Date.now();
             const timeSpentSeconds = Math.floor((endTime - startTime) / 1000);
             document.getElementById('timeSpent').value = timeSpentSeconds;
+            
+            // Nộp form về backend
+            examForm.submit();
+        }
+
+        // 3. KHI NGƯỜI DÙNG CHỦ ĐỘNG BẤM NÚT NỘP BÀI SỚM
+        document.getElementById('btnSubmitExam').addEventListener('click', function() {
+            if (confirm('Are you sure you want to submit early?')) {
+                clearInterval(timerInterval); // Dừng đồng hồ
+                submitExam();
+            }
         });
     </script>
 </body>

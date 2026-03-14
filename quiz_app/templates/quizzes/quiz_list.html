@@ -48,7 +48,7 @@
                         <a href="{% url 'edit_quiz' quiz.id %}" class="action-btn edit-btn" title="Edit" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
                             <i class="fas fa-edit"></i>
                         </a>
-                        <form action="{% url 'delete_quiz' quiz.id %}" method="POST" style="display:inline;" onsubmit="return confirm('Bạn có chắc chắn muốn xóa đề thi này? Lịch sử điểm của người dùng cũng sẽ bị xóa!');">
+                        <form action="{% url 'delete_quiz' quiz.id %}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this quiz? User score history will also be deleted!');">
                             {% csrf_token %}
                             <button type="submit" class="action-btn delete-btn" title="Delete">
                                 <i class="fas fa-trash"></i>

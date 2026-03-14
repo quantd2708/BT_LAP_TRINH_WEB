@@ -7,64 +7,162 @@
     <link rel="stylesheet" href="{% static 'quizzes/css/navbar.css' %}">
     <link rel="stylesheet" href="{% static 'quizzes/css/home.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* CSS cho thanh tìm kiếm thu nhỏ và các nút */
+        .search-box {
+            position: relative;
+            width: 250px; /* Thu nhỏ thanh tìm kiếm */
+        }
+        .search-box input {
+            width: 100%;
+            padding: 8px 35px 8px 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            outline: none;
+            font-size: 14px;
+        }
+        .search-box i {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+        .history-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .history-title { font-size: 18px; font-weight: bold; color: #1a3a52; margin-bottom: 5px; }
+        .history-timestamp { font-size: 13px; color: #666; }
+        .history-right { display: flex; align-items: center; gap: 20px; }
+        .history-stats { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #555; }
+        .history-circle {
+            width: 45px; height: 45px;
+            border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-weight: bold; font-size: 14px;
+            background: white; /* Đổi nền thành màu trắng */
+        }
+
+        .history-circle.green { border: 2px solid #2ecc71; color: #2ecc71; }
+        .history-circle.red { border: 2px solid #e74c3c; color: #e74c3c; }
+        
+        .action-buttons { display: flex; gap: 10px; }
+        .btn-retry { background: #2ecc71; color: white; padding: 8px 15px; border-radius: 5px; text-decoration: none; font-weight: bold; font-size: 13px; transition: 0.3s; }
+        .btn-retry:hover { background: #27ae60; }
+        .btn-review { background: #1a3a52; color: white; padding: 8px 15px; border-radius: 5px; text-decoration: none; font-weight: bold; font-size: 13px; transition: 0.3s; }
+        .btn-review:hover { background: #112738; }
+
+        .pagination { display: flex; justify-content: center; gap: 8px; margin-top: 30px; margin-bottom: 50px; align-items: flex-end; }
+        .page-link { 
+            display: flex; justify-content: center; align-items: center;
+            width: 40px; height: 40px; 
+            background-color: #2c2c2c; /* Màu xám đen */
+            color: #ffffff; 
+            text-decoration: none; 
+            border-radius: 4px; 
+            font-weight: 500; 
+            font-size: 16px;
+            transition: 0.2s;
+            border: none;
+        }
+        .page-link:hover { background-color: #3f3f3f; color: #ffffff; }
+        .page-link.active { 
+            background: linear-gradient(135deg, #2ecc71, #2ecc71); /* Màu vàng/cam gradient giống ảnh */
+            color: #ffffff; 
+            pointer-events: none; 
+        }
+        .page-dots { 
+            color: #333; /* Màu dấu ... */
+            font-weight: bold; 
+            padding: 0 5px; 
+            font-size: 18px;
+            line-height: 30px;
+        }
+    </style>
 </head>
-<body>
+<body style="background: #f4f7f9;">
     {% include 'quizzes/_navbar.html' %}
     <main class="container" style="margin-top:40px;">
-        <div class="header-nav">
+        <div class="header-nav" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
             <div class="header-left-group">
-                {% comment %} <a href="{% url 'home' %}" class="back-button">
-                    <i class="fas fa-arrow-left"></i> Back
-                </a> {% endcomment %}
                 <div>
-                    <h3 class="header-title"><span class="line"></span> Exam History</h3>
+                    <h3 class="header-title" style="margin:0; font-size:24px; color:#1a3a52;"><span class="line" style="display:inline-block; width:4px; height:20px; background:#1a3a52; margin-right:10px; vertical-align:middle;"></span> Exam History</h3>
                     <p style="margin:4px 0 0; color:#666; font-size:14px;">Review completed exams</p>
                 </div>
             </div>
-            <div class="header-right-group" style="gap:10px;">
+            <div class="header-right-group" style="display:flex; align-items:center; gap:10px;">
                 <div class="search-box">
-                    <input type="text" id="historySearch" placeholder="Search..." value="{{ query|default:'' }}">
+                    <input type="text" id="historySearch" placeholder="Search quizzes..." value="{{ query|default:'' }}">
                     <i class="fas fa-search"></i>
                 </div>
-                <button class="btn-filter{% if sort == 'newest' %} active{% endif %}" id="sortNewestBtn">Newest</button>
             </div>
         </div>
 
         <div class="history-list">
-            {% for e in entries %}
-            <div class="history-item">
-                <div class="history-info">
-                    <p class="history-title">{{ e.title }}</p>
-                    <p class="history-timestamp">Completed: {{ e.time }}</p>
-                </div>
-                <div class="history-right">
-                    <div class="history-stats">
-                        <div class="history-circle {% if e.percent >= 50 %}green{% else %}red{% endif %}">{{ e.percent }}%</div>
-                        <span>{{ e.correct }}/{{ e.total }} questions</span>
+            {% if entries %}
+                {% for e in entries %}
+                <div class="history-item">
+                    <div class="history-info">
+                        <p class="history-title">{{ e.title }}</p>
+                        <p class="history-timestamp"><i class="far fa-calendar-alt"></i> Completed: {{ e.time }}</p>
                     </div>
-                    <a href="#" class="btn-retry">Retake</a>
+                    <div class="history-right">
+                        <div class="history-stats">
+                            <span>{{ e.correct }}/{{ e.total }} questions</span>
+                            <div class="history-circle {% if e.percent >= 50 %}green{% else %}red{% endif %}">{{ e.percent }}%</div>
+                        </div>
+                        <div class="action-buttons">
+                            <a href="{% url 'review_quiz' e.id %}" class="btn-review"></i> Review</a>
+                            <a href="{% url 'exam' e.quiz_id %}" class="btn-retry"></i> Retake</a>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            {% endfor %}
+                {% endfor %}
+            {% else %}
+                <div style="text-align: center; padding: 50px; background: white; border-radius: 8px;">
+                    <i class="fas fa-history" style="font-size: 40px; color: #ddd; margin-bottom: 15px;"></i>
+                    <p style="color: #666;">No exam history found.</p>
+                </div>
+            {% endif %}
         </div>
+
+        {% if page_obj.has_other_pages %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" class="page-link"><i class="fas fa-chevron-left"></i></a>
+            {% endif %}
+            
+            {% for i in page_range %}
+                {% if i == page_obj.paginator.ELLIPSIS %}
+                    <span class="page-dots">...</span>
+                {% else %}
+                    <a href="?page={{ i }}{% if query %}&q={{ query }}{% endif %}" class="page-link {% if page_obj.number == i %}active{% endif %}">{{ i }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}" class="page-link"><i class="fas fa-chevron-right"></i></a>
+            {% endif %}
+        </div>
+        {% endif %}
     </main>
 
     <script>
+        // Xử lý ô tìm kiếm
         const histInput = document.getElementById('historySearch');
         if(histInput){
             histInput.addEventListener('keypress', function(e){
-                if(e.key==='Enter'){
+                if(e.key === 'Enter'){
                     const q = histInput.value.trim();
-                    window.location.href = '{% url "history" %}?q='+encodeURIComponent(q);
+                    window.location.href = '{% url "history" %}?q=' + encodeURIComponent(q);
                 }
-            });
-        }
-        const sortBtn = document.getElementById('sortNewestBtn');
-        if(sortBtn){
-            sortBtn.addEventListener('click', function(){
-                const url = new URL(window.location.href);
-                url.searchParams.set('sort','newest');
-                window.location.href = url.toString();
             });
         }
     </script>

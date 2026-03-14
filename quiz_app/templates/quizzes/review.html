@@ -1,0 +1,63 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Xem lại đáp án - QUIZZZ</title>
+    <link rel="stylesheet" href="{% static 'quizzes/css/navbar.css' %}">
+    <link rel="stylesheet" href="{% static 'quizzes/css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'quizzes/css/exam.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .opt-correct { background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 5px; padding: 5px; }
+        .opt-wrong { background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 5px; padding: 5px; }
+        .opt-default { padding: 5px; }
+        .explanation-box { margin-top: 15px; padding: 15px; background: #e9ecef; border-left: 4px solid #17a2b8; border-radius: 4px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    {% include 'quizzes/_navbar.html' %}
+
+    <main class="container" style="padding:40px 0;">
+        <div class="exam-header">
+            <h2>Xem lại: {{ result.quiz.title }}</h2>
+        </div>
+        
+        <div class="exam-info" style="margin-bottom: 20px;">
+            <span><i class="fas fa-check-circle" style="color: #2ecc71;"></i> Score: {{ result.score }}/10</span>
+            <span><i class="far fa-clock"></i> Thời gian: {{ result.time_spent }} giây</span>
+            <a href="{% url 'quiz_list' result.quiz.subject.id %}" style="margin-left: auto; font-weight: bold; color: #1a3a52; text-decoration: underline;">Quay lại danh sách</a>
+        </div>
+
+        <ol class="question-list">
+            {% for item in review_data %}
+            <li class="question-item">
+                <div class="question-text">Câu {{ forloop.counter }}. {{ item.question.content }}</div>
+                <ul class="options">
+                    {% for opt in item.options %}
+                        <li class="{% if opt.is_correct %}opt-correct{% elif item.selected_answer_id == opt.id and not opt.is_correct %}opt-wrong{% else %}opt-default{% endif %}">
+                            <label style="display: flex; align-items: center; gap: 10px;">
+                                <input type="radio" disabled {% if item.selected_answer_id == opt.id %}checked{% endif %}>
+                                {{ opt.content }}
+                                
+                                {% if opt.is_correct %}
+                                    <i class="fas fa-check" style="color: #28a745; margin-left: auto;"></i>
+                                {% elif item.selected_answer_id == opt.id and not opt.is_correct %}
+                                    <i class="fas fa-times" style="color: #dc3545; margin-left: auto;"></i>
+                                {% endif %}
+                            </label>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                {% if item.question.explanation %}
+                <div class="explanation-box">
+                    <strong><i class="fas fa-lightbulb" style="color: #f1c40f;"></i> Giải thích:</strong> {{ item.question.explanation }}
+                </div>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ol>
+    </main>
+</body>
+</html>

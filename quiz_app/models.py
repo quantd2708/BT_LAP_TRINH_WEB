@@ -43,3 +43,11 @@ class Result(models.Model):
     score = models.DecimalField(max_digits=5, decimal_places=2)
     time_spent = models.IntegerField() # giây
     completed_at = models.DateTimeField(auto_now_add=True)
+
+class ResultDetail(models.Model): # Đã đổi tên từ UserAnswer
+    result = models.ForeignKey(Result, on_delete=models.CASCADE, related_name='result_details')
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    selected_answer = models.ForeignKey(Answer, on_delete=models.CASCADE, null=True, blank=True)
+
+    class Meta:
+        db_table = 'ResultDetails'

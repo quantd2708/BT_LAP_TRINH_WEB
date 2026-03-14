@@ -1,7 +1,35 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.db.models import Count
-from .models import Subject, Quiz, Question, Answer, Result
+from django.db.models import Count, Q
+from .models import Subject, Quiz, Question, Answer, Result, ResultDetail
+from django.core.paginator import Paginator
+from django.utils import timezone
+
+def home_view(request):
+    # Lấy thời gian hiện tại (Năm và Tháng)
+    now = timezone.now()
+
+    # 1. Lấy 3 môn học (Giữ nguyên)
+    subjects = Subject.objects.annotate(
+        quiz_count=Count('quizzes')
+    ).order_by('-quiz_count')[:3]
+    
+    # 2. Lấy 3 đề thi được làm nhiều nhất TRONG THÁNG NÀY
+    featured_quizzes = Quiz.objects.annotate(
+        attempt_count=Count(
+            'result', 
+            # THÊM ĐIỀU KIỆN LỌC (FILTER) VÀO ĐÂY:
+            filter=Q(result__completed_at__year=now.year, result__completed_at__month=now.month),
+            distinct=True
+        ),
+        question_count=Count('questions', distinct=True)
+    ).order_by('-attempt_count')[:3]
+
+    context = {
+        'subjects': subjects,
+        'featured_quizzes': featured_quizzes
+    }
+    return render(request, 'quizzes/home.html', context)
 
 # 1. Hiển thị danh sách & Tìm kiếm
 def subject_list_view(request):
@@ -28,14 +56,13 @@ def add_subject(request):
             s_image = request.FILES.get('image') 
             
             if Subject.objects.filter(subject_name=s_name).exists():
-                messages.error(request, f'Môn học "{s_name}" đã tồn tại!')
+                messages.error(request, f'Subject "{s_name}" already exists!')
             else:
                 # Lưu cả tên và ảnh vào database
                 Subject.objects.create(subject_name=s_name, image=s_image)
-                messages.success(request, 'Thêm môn học thành công!')
+                messages.success(request, 'Subject added successfully!')
         else:
-            messages.error(request, 'Bạn không có quyền thực hiện thao tác này.')
-            
+                messages.error(request, 'You do not have permission to perform this action.')
     return redirect('subject_list')
 
 # 3. Xóa môn học
@@ -44,16 +71,9 @@ def delete_subject(request, subject_id):
         if request.user.is_authenticated and request.user.role == 'admin':
             subject = get_object_or_404(Subject, id=subject_id)
             subject.delete()
-            messages.success(request, 'Đã xóa môn học thành công!')
+            messages.success(request, 'Subject deleted successfully!')
             
     return redirect('subject_list')
-
-
-
-def home_view(request):
-    # Sau này dữ liệu từ bảng Subjects và Quizzes sẽ được lấy ở đây
-    return render(request, 'quizzes/home.html')
-
 
 def search_view(request):
     # quiz search results page
@@ -84,7 +104,6 @@ def quiz_list_view(request, subject_id):
         'quizzes': quizzes,
     }
     return render(request, 'quizzes/quiz_list.html', context)
-
 
 def create_quiz_view(request, subject_id):
     subject = get_object_or_404(Subject, id=subject_id)
@@ -131,7 +150,7 @@ def create_quiz_view(request, subject_id):
                         is_correct=is_correct
                     )
 
-        messages.success(request, 'Đã tạo đề thi thành công!')
+        messages.success(request, 'Quiz created successfully!')
         return redirect('quiz_list', subject_id=subject.id)
 
     return render(request, 'quizzes/create_quiz.html', {'subject': subject})
@@ -142,7 +161,7 @@ def edit_quiz_view(request, quiz_id):
     
     # Chỉ Admin mới được sửa
     if not (request.user.is_authenticated and request.user.role == 'admin'):
-        messages.error(request, 'Bạn không có quyền sửa đề thi này.')
+        messages.error(request, 'You do not have permission to edit this quiz.')
         return redirect('quiz_list', subject_id=quiz.subject.id)
 
     if request.method == 'POST':
@@ -171,7 +190,7 @@ def edit_quiz_view(request, quiz_id):
                     is_correct = (opt_idx == correct_idx)
                     Answer.objects.create(question=question, content=opt_content, is_correct=is_correct)
 
-        messages.success(request, 'Cập nhật đề thi thành công!')
+        messages.success(request, 'Quiz updated successfully!')
         return redirect('quiz_list', subject_id=quiz.subject.id)
 
     return render(request, 'quizzes/edit_quiz.html', {'quiz': quiz})
@@ -184,14 +203,14 @@ def delete_quiz(request, quiz_id):
             quiz = get_object_or_404(Quiz, id=quiz_id)
             subject_id = quiz.subject.id # Lưu lại ID môn học để lát nữa quay về đúng trang
             quiz.delete()
-            messages.success(request, 'Đã xóa đề thi thành công!')
+            messages.success(request, 'Quiz deleted successfully!')
             return redirect('quiz_list', subject_id=subject_id)
         else:
-            messages.error(request, 'Bạn không có quyền thực hiện thao tác này.')
+            messages.error(request, 'You do not have permission to perform this action.')
             
     return redirect('subject_list') # Nếu không phải POST thì đẩy về trang môn học
 
-
+# Thêm hàm này vào views.py
 def exam_view(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
     # Lấy tất cả câu hỏi của đề thi, prefetch_related giúp lấy đáp án nhanh hơn
@@ -201,24 +220,26 @@ def exam_view(request, quiz_id):
         score = 0
         total_questions = questions.count()
         
+        # Tạo một dictionary để tạm lưu các đáp án user đã chọn
+        user_choices = {} 
+        
         # 1. Chấm điểm
         for question in questions:
-            # Lấy ID của đáp án mà sinh viên chọn cho câu hỏi này
             selected_answer_id = request.POST.get(f'question_{question.id}')
             
             if selected_answer_id:
-                # Kiểm tra xem đáp án đó có thuộc về câu hỏi này và có is_correct=True không
+                # Lưu lại lựa chọn này vào dictionary
+                user_choices[question.id] = selected_answer_id 
+                
                 is_correct = Answer.objects.filter(id=selected_answer_id, question=question, is_correct=True).exists()
                 if is_correct:
                     score += 1
         
-        # Tính điểm hệ 10 (Ví dụ: đúng 8/10 câu -> 8.0 điểm)
+        # Tính điểm hệ 10
         final_score = (score / total_questions * 10) if total_questions > 0 else 0
-        
-        # Lấy thời gian làm bài (được JS truyền lên)
         time_spent = int(request.POST.get('time_spent', 0))
 
-        # 2. Lưu kết quả vào DB
+        # 2. Lưu kết quả tổng vào DB (Bảng Results)
         result = Result.objects.create(
             user=request.user,
             quiz=quiz,
@@ -226,7 +247,17 @@ def exam_view(request, quiz_id):
             time_spent=time_spent
         )
         
-        # 3. Chuyển hướng sang trang kết quả
+        # 3. LƯU CHI TIẾT TỪNG ĐÁP ÁN (Bảng ResultDetails) - ĐÂY LÀ PHẦN BẠN THIẾU
+        for question in questions:
+            ans_id = user_choices.get(question.id)
+            selected_ans = Answer.objects.filter(id=ans_id).first() if ans_id else None
+            ResultDetail.objects.create(
+                result=result,
+                question=question,
+                selected_answer=selected_ans
+            )
+        
+        # 4. Chuyển hướng sang trang kết quả
         return redirect('result', result_id=result.id)
 
     context = {
@@ -234,37 +265,85 @@ def exam_view(request, quiz_id):
         'questions': questions
     }
     return render(request, 'quizzes/exam.html', context)
-
 # Hàm hiển thị trang kết quả
 def result_view(request, result_id):
     # Chỉ cho phép người dùng xem kết quả của chính họ
     result = get_object_or_404(Result, id=result_id, user=request.user)
     return render(request, 'quizzes/result.html', {'result': result})
 
+# HÀM XEM LẠI BÀI THI
+def review_view(request, result_id):
+    # Lấy kết quả của user hiện tại
+    result = get_object_or_404(Result, id=result_id, user=request.user)
+    
+    # Lấy chi tiết các câu trả lời thông qua related_name='result_details'
+    result_details = result.result_details.select_related('question', 'selected_answer').all()
+    
+    review_data = []
+    for detail in result_details:
+        q = detail.question
+        review_data.append({
+            'question': q,
+            'options': q.answers.all(),
+            # Nếu user có chọn đáp án thì lấy ID, không thì để None
+            'selected_answer_id': detail.selected_answer.id if detail.selected_answer else None,
+        })
+
+    return render(request, 'quizzes/review.html', {'result': result, 'review_data': review_data})
 
 
 
-
+# Cập nhật hàm history_view
 def history_view(request):
-    # dummy history entries
-    entries = [
-        {'title': 'Bài tập trắc nghiệm thì hiện tại đơn (Simple Present) online',
-         'time': '14:24 02/02/2026', 'correct': 5, 'total': 20},
-        {'title': 'Bài tập trắc nghiệm thì hiện tại tiếp diễn (Present Continuous) online',
-         'time': '14:27 02/02/2026', 'correct': 17, 'total': 20},
-        {'title': 'Thi thử trắc nghiệm ôn tập môn Pháp luật Đại Cương online - Đề #1',
-         'time': '00:41 02/02/2026', 'correct': 0, 'total': 40},
-        {'title': 'Thi thử trắc nghiệm ôn tập môn Tư tưởng Hồ Chí Minh online - Chương 6 - Đề 64',
-         'time': '18:23 25/01/2026', 'correct': 6, 'total': 25},
-        {'title': 'Thi thử trắc nghiệm ôn tập triết học Mác Lênin online - Chương 1 - Đề #42',
-         'time': '16:52 25/01/2026', 'correct': 4, 'total': 25},
-    ]
-    query = request.GET.get('q', '').strip()
+    if not request.user.is_authenticated:
+        return redirect('login')
+        
+    query = request.GET.get('q', '')
+    sort = request.GET.get('sort', 'newest')
+    
+    # Lấy toàn bộ lịch sử của người dùng này
+    results = Result.objects.filter(user=request.user)
+    
+    # Xử lý tìm kiếm
     if query:
-        entries = [e for e in entries if query.lower() in e['title'].lower()]
-    # compute percentage for display
-    for e in entries:
-        e['percent'] = int(e['correct'] * 100 / e['total']) if e['total'] else 0
-    # sorting not implemented but placeholder param
-    sort = request.GET.get('sort','')
-    return render(request, 'quizzes/history.html', {'entries': entries, 'query': query, 'sort': sort})
+        results = results.filter(quiz__title__icontains=query)
+        
+    # Xử lý sắp xếp
+    if sort == 'newest':
+        results = results.order_by('-completed_at')
+    else:
+        results = results.order_by('completed_at')
+        
+    # Phân trang: 10 bài / trang
+    paginator = Paginator(results, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    page_range = paginator.get_elided_page_range(page_obj.number, on_each_side=1, on_ends=1)
+    # Tính toán thông số (số câu đúng, %) cho trang hiện tại
+    entries = []
+    for r in page_obj:
+        total_q = r.quiz.questions.count()
+        # Tính số câu đúng dựa trên điểm hệ 10
+        correct_q = int(round(float(r.score) / 10.0 * total_q)) if total_q > 0 else 0
+        percent = int(float(r.score) * 10)
+        
+        entries.append({
+            'id': r.id,
+            'quiz_id': r.quiz.id,
+            'title': r.quiz.title,
+            'time': r.completed_at.strftime("%d/%m/%Y %H:%M"),
+            'percent': percent,
+            'correct': correct_q,
+            'total': total_q,
+            'score': r.score
+        })
+        
+    context = {
+        'page_obj': page_obj,
+        'page_range': page_range,
+        'entries': entries,
+        'query': query,
+        'sort': sort,
+    }
+    return render(request, 'quizzes/history.html', context)

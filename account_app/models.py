@@ -14,6 +14,5 @@ class CustomUser(AbstractUser):
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='user')
 
     # Django AbstractUser đã có sẵn: username, password, email, is_active, is_staff...
-    
     def __str__(self):
         return self.username
