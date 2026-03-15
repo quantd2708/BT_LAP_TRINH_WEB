@@ -626,3 +626,36 @@ body {
         width: 100%;
     }
 }
+
+/* Căn lề cho phần main container */
+.quiz-list-container {
+    margin-top: 40px;
+}
+
+/* Khung bọc ô tìm kiếm trên Header */
+.search-box.header-search {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+}
+
+/* Đảm bảo thẻ <a> nút Add Quiz hiển thị chuẩn */
+.btn-add-quiz {
+    width: auto;
+    text-decoration: none;
+    display: inline-block;
+    /* Giữ nguyên các thuộc tính background, color, padding... bạn đã viết */
+}
+
+/* Căn giữa icon bên trong các nút Action (Edit/Delete) */
+.action-btn {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Giữ form xóa nằm trên cùng một dòng với nút Edit */
+.form-delete-quiz {
+    display: inline;
+}

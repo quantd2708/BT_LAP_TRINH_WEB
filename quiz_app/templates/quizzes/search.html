@@ -10,49 +10,63 @@
     <link rel="stylesheet" href="{% static 'quizzes/css/search.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body>
-    {% include 'quizzes/_navbar.html' %}
+<body class="search-page">
+    {% comment %} {% include 'quizzes/_navbar.html' %} {% endcomment %}
 
-    <main class="container" style="padding:40px 0;">
+    <main class="container search-main">
         <a href="javascript:history.back()" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
+        
         <div class="search-bar-large">
-            <input type="text" id="searchInput" placeholder="Find quizzes or exercises" value="{{ query }}">
-            <button id="searchBtn" class="btn-start">Search</button>
+            <input type="text" id="searchInput" placeholder="Search for quizzes or subjects..." value="{{ query }}">
+            <button id="searchBtn" class="btn-start"><i class="fas fa-search"></i> Search</button>
         </div>
-        <h3>Search results</h3>
+        
+        <h3 class="search-header-title">
+            {% if query %}
+                Search results for: "<span class="highlight-query">{{ query }}</span>"
+            {% else %}
+                Enter keywords to search
+            {% endif %}
+        </h3>
+        
         <div class="grid-container quizzes">
-            {% for quiz in quizzes %}
-            <div class="quiz-card">
-                <h4>{{ quiz.title }}</h4>
-                <div class="quiz-info">
-                    <span><i class="far fa-question-circle"></i> {{ quiz.questions }} questions</span>
-                    <span><i class="far fa-clock"></i> {{ quiz.duration }} mins</span>
+            {% if quizzes %}
+                {% for quiz in quizzes %}
+                <div class="quiz-card search-quiz-card">
+                    <h4>{{ quiz.title }}</h4>
+                    <p class="subject-tag search-subject-tag">{{ quiz.subject.subject_name }}</p>
+                    
+                    <div class="quiz-info search-quiz-info">
+                        <span><i class="far fa-question-circle"></i> {{ quiz.question_count }} questions</span>
+                        <span><i class="far fa-clock"></i> {{ quiz.duration }} mins</span>
+                    </div>
+                    
+                    <a href="{% url 'exam' quiz.id %}" class="btn-start btn-full-width">Take Quiz</a>
                 </div>
-                <a href="{% url 'exam' quiz.id|default:1 %}" class="btn-start">Take Quiz</a>
-            </div>
-            {% endfor %}
+                {% endfor %}
+            {% elif query %}
+                <div class="empty-result">
+                    <i class="fas fa-search-minus empty-result-icon"></i>
+                    <p class="empty-result-text">No quizzes found matching your keywords.</p>
+                </div>
+            {% endif %}
         </div>
     </main>
 
     <script>
         const input = document.getElementById('searchInput');
         const btn = document.getElementById('searchBtn');
+        
         function doSearch(e) {
             const q = input.value.trim();
             if (e && e.type === 'keypress') {
-                // only submit when Enter pressed
-                if (e.key !== 'Enter') {
-                    return; // ignore other keys
-                }
-                // if shift+enter etc, still treat as enter
+                if (e.key !== 'Enter') return;
             }
-            // if it came from Enter key we may want subject search
-            if (e && e.type === 'keypress' && e.key === 'Enter') {
-                window.location.href = '{% url "search" %}?q=' + encodeURIComponent(q);
-            } else {
+            if (q) {
                 window.location.href = '{% url "search" %}?q=' + encodeURIComponent(q);
             }
         }
+        
         input.addEventListener('keypress', doSearch);
         btn.addEventListener('click', doSearch);
     </script>

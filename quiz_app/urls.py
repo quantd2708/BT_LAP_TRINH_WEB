@@ -15,4 +15,8 @@ urlpatterns = [
     path('exam/<int:quiz_id>/', views.exam_view, name='exam'),
     path('result/<int:result_id>/', views.result_view, name='result'),
     path('result/<int:result_id>/review/', views.review_view, name='review_quiz'),
+
+    path('home/', views.home_view, name='home'),
+    path('history/', views.history_view, name='history'),
+    path('search/', views.search_view, name='search'),
 ]

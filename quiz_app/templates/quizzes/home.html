@@ -3,20 +3,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Home - LuyenThi</title>
+    <title>Home - QUIZZZ</title>
     <link rel="stylesheet" href="{% static 'quizzes/css/navbar.css' %}">
     <link rel="stylesheet" href="{% static 'quizzes/css/home.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        /* CSS cho thẻ img trong trang chủ để ảnh ko bị méo */
-        .subject-card img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-    </style>
 </head>
 <body>
 
@@ -44,18 +34,18 @@
                     {% if subject.image %}
                         <img src="{{ subject.image.url }}" alt="{{ subject.subject_name }}">
                     {% else %}
-                        <div style="width: 100%; height: 150px; background: #e1e8ed; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-bottom: 15px;">
-                            <i class="fas fa-book" style="font-size: 40px; color: #a0aec0;"></i>
+                        <div class="subject-placeholder">
+                            <i class="fas fa-book"></i>
                         </div>
                     {% endif %}
                     
                     <div class="card-footer">
                         <span>{{ subject.quiz_count }} quizzes</span>
-                        <a href="{% url 'quiz_list' subject.id %}" class="btn-start" style="width: auto; padding: 5px 15px; font-size: 12px; text-decoration: none; color: white; display: inline-block;">View all</a>
+                        <a href="{% url 'quiz_list' subject.id %}" class="btn-start btn-view-all">View all</a>
                     </div>
                 </div>
                 {% empty %}
-                <p>Chưa có môn học nào trên hệ thống.</p>
+                <p>No subjects available on the system.</p>
                 {% endfor %}
             </div>
         </section>
@@ -65,27 +55,27 @@
                 <h3><span class="line"></span> Trending Quizzes</h3>
             </div>
             
-            <div class="grid-container quizzes" style="grid-template-columns: repeat(3, 1fr);"> {% for quiz in featured_quizzes %}
+            <div class="grid-container quizzes-trending"> 
+                {% for quiz in featured_quizzes %}
                 <div class="quiz-card">
                     <h4>{{ quiz.title }}</h4>
                     <p class="subject-tag">{{ quiz.subject.subject_name }}</p>
                     
-                    <div class="quiz-info" style="display: flex; flex-direction: column; gap: 8px;">
-                        <div style="display: flex; gap: 15px;">
+                    <div class="quiz-info">
+                        <div class="quiz-info-stats">
                             <span><i class="far fa-question-circle"></i> {{ quiz.question_count }} questions</span>
                             <span><i class="far fa-clock"></i> {{ quiz.duration }} mins</span>
                         </div>
-                        <span style="color: #e67e22; font-weight: bold;">
+                        <span class="quiz-attempts">
                             <i class="fas fa-fire"></i> {{ quiz.attempt_count }} Attempts this month
                         </span>
                     </div>
                     
-                    <a href="{% url 'exam' quiz.id %}" class="btn-start" style="text-decoration: none; display: inline-block; text-align: center; margin-top: 15px;">Take Quiz</a>
+                    <a href="{% url 'exam' quiz.id %}" class="btn-start btn-take-quiz">Take Quiz</a>
                 </div>
                 {% empty %}
                 <p>There are no exams on the system yet.</p>
                 {% endfor %}
-
             </div>
         </section>
         

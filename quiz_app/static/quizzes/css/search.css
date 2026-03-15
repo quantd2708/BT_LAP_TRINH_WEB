@@ -33,3 +33,122 @@ h3 {
 .grid-container.quizzes {
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
 }
+
+
+/* =========================================
+   Trang Tìm Kiếm (Search Page)
+   ========================================= */
+
+body.search-page {
+    background: #f4f7f9;
+}
+
+.search-main {
+    padding: 40px 0;
+}
+
+.back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #1a3a52;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* Thanh tìm kiếm lớn */
+.search-bar-large {
+    display: flex;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.search-bar-large input {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    outline: none;
+}
+
+.search-bar-large .btn-start {
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+/* Tiêu đề kết quả tìm kiếm */
+.search-header-title {
+    margin-top: 30px;
+    margin-bottom: 20px;
+}
+
+.highlight-query {
+    color: #e74c3c;
+}
+
+/* Lưới hiển thị kết quả */
+.grid-container.quizzes {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+
+/* Quiz Card hiển thị riêng trong Search */
+.search-quiz-card {
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.search-quiz-card h4 {
+    margin: 0 0 10px 0;
+    color: #1a3a52;
+    font-size: 18px;
+}
+
+.search-subject-tag {
+    display: inline-block;
+    background: #e8f0fe;
+    color: #1a73e8;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    margin-bottom: 15px;
+}
+
+.search-quiz-info {
+    display: flex;
+    gap: 15px;
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+.btn-full-width {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+}
+
+/* Trạng thái không tìm thấy kết quả (Empty state) */
+.empty-result {
+    text-align: center;
+    padding: 50px 20px;
+    background: #fff;
+    border-radius: 8px;
+    border: 1px dashed #ccc;
+    grid-column: 1 / -1;
+}
+
+.empty-result-icon {
+    font-size: 40px;
+    color: #ccc;
+    margin-bottom: 15px;
+}
+
+.empty-result-text {
+    color: #666;
+    font-size: 16px;
+}

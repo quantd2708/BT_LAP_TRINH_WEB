@@ -93,3 +93,126 @@
     background: #f1c40f;
     color: #333;
 }
+
+
+/* =========================================
+   Đồng hồ đếm ngược (Countdown Timer)
+   ========================================= */
+#countdown-timer {
+    position: fixed;
+    top: 40px;
+    right: 20px;
+    background-color: #1a3a52; /* Màu xanh đen đồng bộ với theme */
+    color: white;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-size: 22px;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background-color 0.3s;
+}
+
+/* Hiệu ứng nhấp nháy cảnh báo khi sắp hết giờ */
+@keyframes pulseAlert {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); background-color: #c0392b; }
+    100% { transform: scale(1); }
+}
+
+.time-warning {
+    background-color: #e74c3c !important; /* Đổi sang màu đỏ */
+    animation: pulseAlert 1s infinite;
+}
+
+/* =========================================
+   Layout trang làm bài (Exam Page)
+   ========================================= */
+.exam-main {
+    padding: 40px 0;
+}
+
+.options label {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.exam-actions {
+    text-align: center;
+    margin-top: 40px;
+}
+
+/* =========================================
+   Layout trang Xem lại kết quả (Review Page)
+   ========================================= */
+
+/* Ghi đè margin-bottom cho phần info trên trang Review */
+.exam-info.review-info {
+    margin-bottom: 20px;
+}
+
+.icon-correct {
+    color: #2ecc71;
+}
+
+/* Nút quay lại danh sách */
+.link-return {
+    margin-left: auto;
+    font-weight: bold;
+    color: #1a3a52;
+    text-decoration: underline;
+}
+
+/* Trạng thái đáp án */
+.opt-correct {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.opt-wrong {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.opt-default {
+    padding: 5px;
+}
+
+/* Đảm bảo label chiếm hết chiều rộng để icon kết quả có thể ép sang phải */
+.options label {
+    width: 100%;
+}
+
+/* Icon check và cross */
+.icon-check-mark {
+    color: #28a745;
+    margin-left: auto;
+}
+
+.icon-times-mark {
+    color: #dc3545;
+    margin-left: auto;
+}
+
+/* Hộp giải thích */
+.explanation-box {
+    margin-top: 15px;
+    padding: 15px;
+    background: #e9ecef;
+    border-left: 4px solid #17a2b8;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.icon-bulb {
+    color: #f1c40f;
+}

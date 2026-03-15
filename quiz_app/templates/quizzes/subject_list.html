@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Subjects - LuyenThi</title>
+    <title>Subjects - QUIZZZ</title>
     <link rel="stylesheet" href="{% static 'quizzes/css/navbar.css' %}">
     <link rel="stylesheet" href="{% static 'quizzes/css/home.css' %}">
     <link rel="stylesheet" href="{% static 'quizzes/css/subjects.css' %}">
@@ -12,7 +12,7 @@
 <body>
 
     {% include 'quizzes/_navbar.html' %}
-    <main class="container" style="margin-top: 40px;">
+    <main class="container subjects-main">
         <div class="header-nav">
             <div class="header-left-group">
                 <a href="{% url 'home' %}" class="back-button">
@@ -26,7 +26,7 @@
                     <i class="fas fa-search"></i>
                 </div>
                 {% if user.is_authenticated and user.role == 'admin' %}
-                <button class="btn-start" id="addSubjectBtn" style="width: auto; padding: 10px 20px;">+ Add Subject</button>
+                <button class="btn-start btn-add-subject" id="addSubjectBtn">+ Add Subject</button>
                 {% endif %}
             </div>
         </div>
@@ -34,12 +34,12 @@
         <div class="grid-container">
             {% for subject in subjects %}
             <div class="subject-card">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div class="subject-card-header">
                     <h4 class="subject-name">{{ subject.subject_name }}</h4>
                     {% if user.is_authenticated and user.role == 'admin' %}
-                        <form action="{% url 'delete_subject' subject.id %}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this subject? All quizzes inside will also be deleted!');">
+                        <form action="{% url 'delete_subject' subject.id %}" method="POST" class="delete-subject-form" onsubmit="return confirm('Are you sure you want to delete this subject? All quizzes inside will also be deleted!');">
                             {% csrf_token %}
-                            <button type="submit" style="background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 13px; font-weight: bold;">
+                            <button type="submit" class="btn-delete-subject">
                                 <i class="fas fa-trash"></i> Delete
                             </button>
                         </form>
@@ -47,21 +47,20 @@
                 </div>
                 
                 {% if subject.image %}
-                    <img src="{{ subject.image.url }}" alt="{{ subject.subject_name }}" style="height: 150px; object-fit: cover; width: 100%;">
+                    <img src="{{ subject.image.url }}" alt="{{ subject.subject_name }}">
                 {% else %}
-                    <img src="{% static 'quizzes/images/subject1.png' %}" alt="Default Subject" style="height: 150px; object-fit: cover; width: 100%;">
+                    <img src="{% static 'quizzes/images/subject1.png' %}" alt="Default Subject">
                 {% endif %}
                 
                 <div class="card-footer">
-                    <span style="color: #999;">{{ subject.quiz_count }} quizzes</span>
-                    <a href="{% url 'quiz_list' subject.id %}" class="btn-start" style="width: auto; padding: 5px 15px; font-size: 12px; text-decoration: none; color: white; display: inline-block;">View all</a>
+                    <span>{{ subject.quiz_count }} quizzes</span>
+                    <a href="{% url 'quiz_list' subject.id %}" class="btn-start btn-view-subject">View all</a>
                 </div>
             </div>
             {% endfor %}
         </div>
     </main>
 
-    <!-- Modal for Adding Subject -->
     <div id="addSubjectModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">

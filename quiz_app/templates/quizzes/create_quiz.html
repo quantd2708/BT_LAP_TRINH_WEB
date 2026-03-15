@@ -36,6 +36,14 @@
                     <span>Build from scratch</span>
                 </div>
             </button>
+
+            <button class="mode-btn" data-mode="excel" type="button">
+                <i class="fas fa-file-excel" style="color: #27ae60;"></i>
+                <div class="btn-txt">
+                    <strong>Import from Excel</strong>
+                    <span>Create quiz quickly from file</span>
+                </div>
+            </button>
         </aside>
 
         <section class="create-main">
@@ -72,6 +80,7 @@
             <div class="mode-content manual-mode" style="display:none;">
                 <form method="POST" action="{% url 'create_quiz' subject.id %}" class="manual-workspace" id="manualQuizForm">
                     {% csrf_token %}
+                    <input type="hidden" name="upload_type" value="manual">
                     <input type="hidden" name="total_questions" id="totalQuestions" value="1">
                     
                     <div class="manual-header">
@@ -129,6 +138,50 @@
                     <div class="manual-actions-bottom">
                         <button type="button" class="btn-add-q-manual">+ Add question</button>
                         <button type="submit" class="btn-publish-bottom">Publish</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="mode-content excel-mode" style="display:none;">
+                <form method="POST" action="{% url 'create_quiz' subject.id %}" enctype="multipart/form-data" class="manual-workspace">
+                    {% csrf_token %}
+                    <input type="hidden" name="upload_type" value="excel">
+                    
+                    <div class="manual-header excel-header">
+                        <h3>Import Quiz from Excel file</h3>
+                        <p>The system supports bulk import of questions from .xlsx files</p>
+                    </div>
+
+                    <div class="excel-instructions">
+                        <strong><i class="fas fa-info-circle"></i> Required Excel file structure (from column A to G):</strong>
+                        <ul>
+                            <li><strong>Column A:</strong> Question content</li>
+                            <li><strong>Columns B, C, D, E:</strong> Answers 1, 2, 3, 4</li>
+                            <li><strong>Column F:</strong> Correct answer position (Enter number from 1 to 4)</li>
+                            <li><strong>Column G:</strong> Explanation (Can be left blank)</li>
+                        </ul>
+                        <p class="note"><em>Note: Leave row 1 blank (header row). The system will start reading from row 2.</em></p>
+                    </div>
+
+                    <div class="excel-form-row">
+                        <div class="excel-form-group">
+                            <label>Quiz title</label>
+                            <input type="text" name="quiz_title" required placeholder="Enter quiz title..." class="input-gray">
+                        </div>
+                        <div class="excel-form-group fixed-width">
+                            <label>Duration (minutes)</label>
+                            <input type="number" name="quiz_duration" value="45" required class="input-gray">
+                        </div>
+                    </div>
+
+                    <div class="upload-zone excel-upload-zone">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <h4>Upload Excel file here</h4>
+                        <input type="file" name="excel_file" accept=".xlsx, .xls" required>
+                    </div>
+
+                    <div class="manual-actions-bottom excel-actions-bottom">
+                        <button type="submit" class="btn-submit-full btn-submit-excel">Create Quiz</button>
                     </div>
                 </form>
             </div>
@@ -216,7 +269,7 @@
                         card.remove();
                         renumberCards();
                     } else {
-                        alert("Đề thi phải có ít nhất 1 câu hỏi!");
+                        alert("Quiz must have at least 1 question!");
                     }
                 });
             }
@@ -227,7 +280,7 @@
                 if (!expArea) {
                     expArea = document.createElement('textarea');
                     expArea.className = 'explanation-area';
-                    expArea.placeholder = 'Nhập giải thích cho câu hỏi này (nếu có)...';
+                    expArea.placeholder = 'Enter explanation for this question (if any)...';
                     expArea.style.width = '100%';
                     expArea.style.marginTop = '10px';
                     card.querySelector('.q-footer').appendChild(expArea);

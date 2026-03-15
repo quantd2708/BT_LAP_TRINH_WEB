@@ -4,6 +4,7 @@ from django.db.models import Count, Q
 from .models import Subject, Quiz, Question, Answer, Result, ResultDetail
 from django.core.paginator import Paginator
 from django.utils import timezone
+import openpyxl
 
 def home_view(request):
     # Lấy thời gian hiện tại (Năm và Tháng)
@@ -76,20 +77,24 @@ def delete_subject(request, subject_id):
     return redirect('subject_list')
 
 def search_view(request):
-    # quiz search results page
-    q = request.GET.get('q', '').strip()
-    # dummy quizzes (could be filtered by q)
-    dummy_quizzes = [
-        {'title': 'toán đh', 'questions': 25, 'duration': 45},
-        {'title': 'BÀI 9: GIAO TIẾP AN TOÀN TRÊN INTERNET', 'questions': 50, 'duration': 45},
-        {'title': 'Trắc nghiệm kế toán lương 3', 'questions': 20, 'duration': 45},
-        {'title': 'TRẮC NGHIỆM KẾ TOÁN LƯƠNG', 'questions': 20, 'duration': 45},
-        {'title': 'Trắc nghiệm kế toán lương và các khoản trích theo lương', 'questions': 20, 'duration': 45},
-        {'title': 'Đề thi thử tốt nghiệp THPT 2025 môn Toán -THPT Yên Lạc - Vĩnh Phúc', 'questions': 22, 'duration': 90},
-    ]
-    if q:
-        dummy_quizzes = [z for z in dummy_quizzes if q.lower() in z['title'].lower()]
-    return render(request, 'quizzes/search.html', {'quizzes': dummy_quizzes, 'query': q})
+    # Lấy từ khóa tìm kiếm từ URL (ví dụ: ?q=triết)
+    query = request.GET.get('q', '').strip()
+    quizzes = []
+
+    if query:
+        # Lọc các đề thi có chứa từ khóa trong Tên đề (title) HOẶC Tên môn học (subject_name)
+        # icontains: tìm kiếm không phân biệt chữ hoa chữ thường
+        quizzes = Quiz.objects.filter(
+            Q(title__icontains=query) | Q(subject__subject_name__icontains=query)
+        ).annotate(
+            question_count=Count('questions', distinct=True) # Đếm số câu hỏi của mỗi đề
+        ).order_by('-created_at')
+
+    context = {
+        'query': query,
+        'quizzes': quizzes,
+    }
+    return render(request, 'quizzes/search.html', context)
 
 def quiz_list_view(request, subject_id):
     # Lấy thông tin môn học
@@ -109,49 +114,82 @@ def create_quiz_view(request, subject_id):
     subject = get_object_or_404(Subject, id=subject_id)
 
     if request.method == 'POST':
-        # 1. Lấy thông tin chung của đề thi
-        title = request.POST.get('quiz_title')
-        duration = request.POST.get('quiz_duration')
-        total_questions = int(request.POST.get('total_questions', 0))
+        upload_type = request.POST.get('upload_type') # Kiểm tra xem đang dùng form nào
 
-        # 2. Lưu Đề thi (Quiz) vào DB
-        quiz = Quiz.objects.create(
-            subject=subject,
-            title=title,
-            duration=duration,
-            created_by=request.user
-        )
+        # ==========================================
+        # 1. NẾU LÀ UPLOAD TỪ FILE EXCEL
+        # ==========================================
+        if upload_type == 'excel':
+            title = request.POST.get('quiz_title')
+            duration = request.POST.get('quiz_duration')
+            excel_file = request.FILES.get('excel_file')
 
-        # 3. Duyệt qua từng câu hỏi được gửi lên
-        for i in range(1, total_questions + 1):
-            q_content = request.POST.get(f'q_content_{i}')
-            q_explanation = request.POST.get(f'q_explanation_{i}', '')
+            if not excel_file or not excel_file.name.endswith(('.xlsx', '.xls')):
+                messages.error(request, 'Vui lòng upload file Excel hợp lệ (.xlsx)')
+                return redirect('create_quiz', subject_id=subject.id)
 
-            if q_content:
-                # Lưu Câu hỏi (Question)
-                question = Question.objects.create(
-                    quiz=quiz, 
-                    content=q_content, 
-                    explanation=q_explanation
-                )
+            # Lưu Quiz
+            quiz = Quiz.objects.create(subject=subject, title=title, duration=duration)
 
-                # Lấy danh sách các đáp án (options) của câu hỏi này
-                options = request.POST.getlist(f'q_opt_{i}')
-                # Lấy index của đáp án đúng (0, 1, 2...)
-                correct_idx_str = request.POST.get(f'q_correct_{i}')
-                correct_idx = int(correct_idx_str) if correct_idx_str and correct_idx_str.isdigit() else 0
+            # Đọc file Excel
+            wb = openpyxl.load_workbook(excel_file)
+            sheet = wb.active
 
-                # 4. Lưu các Đáp án (Answer)
-                for opt_idx, opt_content in enumerate(options):
-                    is_correct = (opt_idx == correct_idx)
-                    Answer.objects.create(
-                        question=question,
-                        content=opt_content,
-                        is_correct=is_correct
-                    )
+            # Duyệt qua từng dòng trong Excel (bỏ qua dòng 1 là tiêu đề)
+            # Cấu trúc cột mặc định: A(Câu hỏi) | B(ĐA A) | C(ĐA B) | D(ĐA C) | E(ĐA D) | F(Đáp án đúng 1-4) | G(Giải thích)
+            for row in sheet.iter_rows(min_row=2, values_only=True):
+                if not row[0]:  # Nếu cột Câu hỏi bị trống thì bỏ qua dòng đó
+                    continue
+                
+                q_content = str(row[0])
+                options = [row[1], row[2], row[3], row[4]]
+                options = [str(opt) for opt in options if opt is not None] # Lọc bỏ các cột trống
+                
+                # Lấy số thứ tự đáp án đúng (từ 1 đến 4), chuyển về index (0 đến 3)
+                try:
+                    correct_idx = int(row[5]) - 1 if row[5] else 0
+                except ValueError:
+                    correct_idx = 0
+                    
+                explanation = str(row[6]) if len(row) > 6 and row[6] else ''
 
-        messages.success(request, 'Quiz created successfully!')
-        return redirect('quiz_list', subject_id=subject.id)
+                # Lưu Câu hỏi
+                question = Question.objects.create(quiz=quiz, content=q_content, explanation=explanation)
+
+                # Lưu các Đáp án
+                for idx, opt_content in enumerate(options):
+                    is_correct = (idx == correct_idx)
+                    Answer.objects.create(question=question, content=opt_content, is_correct=is_correct)
+
+            messages.success(request, 'Tạo đề thi từ file Excel thành công!')
+            return redirect('quiz_list', subject_id=subject.id)
+
+        # ==========================================
+        # 2. NẾU LÀ TẠO THỦ CÔNG (MANUAL) NHƯ CŨ
+        # ==========================================
+        elif upload_type == 'manual':
+            title = request.POST.get('quiz_title')
+            duration = request.POST.get('quiz_duration')
+            total_questions = int(request.POST.get('total_questions', 0))
+
+            quiz = Quiz.objects.create(subject=subject, title=title, duration=duration)
+
+            for i in range(1, total_questions + 1):
+                q_content = request.POST.get(f'q_content_{i}')
+                q_explanation = request.POST.get(f'q_explanation_{i}', '')
+
+                if q_content:
+                    question = Question.objects.create(quiz=quiz, content=q_content, explanation=q_explanation)
+                    options = request.POST.getlist(f'q_opt_{i}')
+                    correct_idx_str = request.POST.get(f'q_correct_{i}')
+                    correct_idx = int(correct_idx_str) if correct_idx_str and correct_idx_str.isdigit() else 0
+
+                    for opt_idx, opt_content in enumerate(options):
+                        is_correct = (opt_idx == correct_idx)
+                        Answer.objects.create(question=question, content=opt_content, is_correct=is_correct)
+
+            messages.success(request, 'Tạo đề thi thủ công thành công!')
+            return redirect('quiz_list', subject_id=subject.id)
 
     return render(request, 'quizzes/create_quiz.html', {'subject': subject})
 

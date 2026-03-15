@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="{% static 'quizzes/css/create_quiz.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Ẩn sidebar vì trang sửa chỉ cần khu vực làm việc chính */
         .create-sidebar { display: none; }
         .create-main { max-width: 900px; margin: 0 auto; }
     </style>
@@ -29,7 +28,7 @@
                             <input type="text" name="quiz_title" value="{{ quiz.title }}" required placeholder="Enter quiz title..." class="quiz-title-input">
                         </div>
                         <div class="status-msg">
-                            <p class="hint">Đang chỉnh sửa đề thi của môn: <strong>{{ quiz.subject.subject_name }}</strong></p>
+                            <p class="hint">Editing quiz for subject: <strong>{{ quiz.subject.subject_name }}</strong></p>
                         </div>
                         <div class="quiz-summary-bar">
                             <span>Total: <strong>{{ quiz.questions.count }} question(s)</strong></span>
@@ -153,7 +152,7 @@
                         card.remove();
                         renumberCards();
                     } else {
-                        alert("Đề thi phải có ít nhất 1 câu hỏi!");
+                        alert("Quiz must have at least 1 question!");
                     }
                 });
             }
@@ -164,7 +163,7 @@
                 if (!expArea) {
                     expArea = document.createElement('textarea');
                     expArea.className = 'explanation-area';
-                    expArea.placeholder = 'Nhập giải thích...';
+                    expArea.placeholder = 'Enter explanation...';
                     expArea.style.width = '100%';
                     expArea.style.marginTop = '10px';
                     card.querySelector('.q-footer').appendChild(expArea);

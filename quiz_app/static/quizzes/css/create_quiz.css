@@ -421,3 +421,113 @@
     outline: none;
     background: transparent;
 }
+
+
+.excel-mode {
+    width: 100%;
+}
+
+.excel-header {
+    margin-bottom: 20px;
+}
+
+.excel-header h3 {
+    color: #1a3a52;
+    font-size: 24px;
+}
+
+.excel-header p {
+    color: #666;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.excel-instructions {
+    background: #f0fdf4;
+    border-left: 4px solid #27ae60;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 25px;
+    color: #166534;
+}
+
+.excel-instructions strong {
+    color: #166534;
+}
+
+.excel-instructions ul {
+    font-size: 14px;
+    margin-top: 10px;
+    padding-left: 20px;
+}
+
+.excel-instructions .note {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #166534;
+}
+
+.excel-form-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.excel-form-group {
+    flex: 1;
+}
+
+.excel-form-group.fixed-width {
+    width: 150px;
+    flex: none;
+}
+
+.excel-form-row label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.excel-form-row input.input-gray {
+    width: 100%;
+    padding: 10px;
+}
+
+.excel-upload-zone {
+    background: #fafafa;
+    padding: 40px;
+    border-radius: 8px;
+    border: 2px dashed #cbd5e0;
+    text-align: center;
+}
+
+.excel-upload-zone i {
+    font-size: 48px;
+    color: #a0aec0;
+    margin-bottom: 15px;
+}
+
+.excel-upload-zone h4 {
+    margin-bottom: 10px;
+}
+
+.excel-upload-zone input[type="file"] {
+    margin-top: 10px;
+    padding: 10px;
+}
+
+.excel-actions-bottom {
+    margin-top: 30px;
+    text-align: center;
+    padding-right: 0;
+}
+
+.btn-submit-excel {
+    background: #27ae60;
+    width: auto;
+    padding: 12px 40px;
+}
+
+.btn-submit-excel:hover {
+    background: #219653;
+}

@@ -9,54 +9,22 @@
     <link rel="stylesheet" href="{% static 'quizzes/css/home.css' %}">
     <link rel="stylesheet" href="{% static 'quizzes/css/exam.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <style>
-        /* CSS cho đồng hồ đếm ngược ghim ở góc phải màn hình */
-        #countdown-timer {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            background-color: #1a3a52; /* Màu xanh đen đồng bộ với theme */
-            color: white;
-            padding: 12px 25px;
-            border-radius: 8px;
-            font-size: 22px;
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: background-color 0.3s;
-        }
-
-        /* Hiệu ứng nhấp nháy cảnh báo khi sắp hết giờ */
-        @keyframes pulseAlert {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); background-color: #c0392b; }
-            100% { transform: scale(1); }
-        }
-        .time-warning {
-            background-color: #e74c3c !important; /* Đổi sang màu đỏ */
-            animation: pulseAlert 1s infinite;
-        }
-    </style>
 </head>
 <body>
-    {% include 'quizzes/_navbar.html' %}
+    {% comment %} {% include 'quizzes/_navbar.html' %} {% endcomment %}
 
     <div id="countdown-timer">
         <i class="fas fa-stopwatch"></i>
         <span id="time-display">--:--</span>
     </div>
 
-    <main class="container" style="padding:40px 0;">
+    <main class="container exam-main">
         <div class="exam-header">
             <h2>{{ quiz.title }}</h2>
         </div>
         <div class="exam-info">
-            <span><i class="far fa-question-circle"></i> {{ questions.count }} câu hỏi</span>
-            <span><i class="far fa-clock"></i> {{ quiz.duration }} phút</span>
+            <span><i class="far fa-question-circle"></i> {{ questions.count }} questions</span>
+            <span><i class="far fa-clock"></i> {{ quiz.duration }} mins</span>
             <span><i class="fas fa-book"></i> {{ quiz.subject.subject_name }}</span>
         </div>
 
@@ -67,11 +35,11 @@
             <ol class="question-list">
                 {% for q in questions %}
                 <li class="question-item">
-                    <div class="question-text">Câu {{ forloop.counter }}. {{ q.content }}</div>
+                    <div class="question-text">Question {{ forloop.counter }}. {{ q.content }}</div>
                     <ul class="options">
                         {% for opt in q.answers.all %}
                         <li>
-                            <label style="cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                            <label>
                                 <input type="radio" name="question_{{ q.id }}" value="{{ opt.id }}"> 
                                 {{ opt.content }}
                             </label>
@@ -82,7 +50,7 @@
                 {% endfor %}
             </ol>
 
-            <div class="exam-actions" style="text-align:center; margin-top:40px;">
+            <div class="exam-actions">
                 <button type="button" class="btn-start" id="btnSubmitExam">Submit Exam</button>
             </div>
         </form>
