@@ -2,12 +2,13 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from django.http import HttpResponseForbidden, JsonResponse
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
 from django.db.models import Q
 from .models import CustomUser
+from django.core.paginator import Paginator
 
 def login_view(request):
     if request.method == 'POST':
@@ -51,7 +52,6 @@ def logout_user(request):
 
 
 @login_required
-@csrf_exempt
 def add_account(request):
     if request.user.role != 'admin':
         return JsonResponse({'success': False, 'message': 'Unauthorized'})
@@ -70,7 +70,6 @@ def add_account(request):
 
 
 @login_required
-@csrf_exempt
 def edit_account(request):
     if request.user.role != 'admin':
         return JsonResponse({'success': False, 'message': 'Unauthorized'})
@@ -95,7 +94,6 @@ def edit_account(request):
 
 
 @login_required
-@csrf_exempt
 def delete_account(request):
     if request.user.role != 'admin':
         return JsonResponse({'success': False, 'message': 'Unauthorized'})
@@ -112,15 +110,28 @@ def delete_account(request):
 @login_required
 def account_list_view(request):
     if request.user.role != 'admin':
-        return redirect('home')
-
-    query = request.GET.get('q', '').strip()
-    users = CustomUser.objects.filter(role='user')
+        return JsonResponse({'success': False, 'message': 'Unauthorized'})
+    query = request.GET.get('q', '')
+    
+    base_users = CustomUser.objects.filter(role='user')
+    
     if query:
-        users = users.filter(Q(full_name__icontains=query) | Q(username__icontains=query))
+        users_list = base_users.filter(
+            Q(username__icontains=query) | Q(full_name__icontains=query)
+        ).order_by('-id') 
+    else:
+        users_list = base_users.order_by('-id')
+
+    paginator = Paginator(users_list, 10) 
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    page_range = paginator.get_elided_page_range(page_obj.number, on_each_side=1, on_ends=1)
 
     context = {
-        'users': users,
-        'query': query,
+        'users': page_obj,  
+        'page_obj': page_obj,
+        'page_range': page_range,
+        'query': query
     }
     return render(request, 'accounts/account_list.html', context)

@@ -45,29 +45,31 @@ def subject_list_view(request):
 
 
 def add_subject(request):
-    if request.method == 'POST':
-        if request.user.is_authenticated and request.user.role == 'admin':
-            s_name = request.POST.get('subject_name')
-            s_image = request.FILES.get('image') 
-            
-            if Subject.objects.filter(subject_name=s_name).exists():
-                messages.error(request, f'Subject "{s_name}" already exists!')
+    if request.user.is_authenticated and request.user.role == 'admin':
+        if request.method == 'POST':
+            if request.user.is_authenticated and request.user.role == 'admin':
+                s_name = request.POST.get('subject_name')
+                s_image = request.FILES.get('image') 
+                
+                if Subject.objects.filter(subject_name=s_name).exists():
+                    messages.error(request, f'Subject "{s_name}" already exists!')
+                else:
+                    Subject.objects.create(subject_name=s_name, image=s_image)
+                    messages.success(request, 'Subject added successfully!')
             else:
-                Subject.objects.create(subject_name=s_name, image=s_image)
-                messages.success(request, 'Subject added successfully!')
-        else:
-                messages.error(request, 'You do not have permission to perform this action.')
-    return redirect('subject_list')
+                    messages.error(request, 'You do not have permission to perform this action.')
+        return redirect('subject_list')
 
 
 def delete_subject(request, subject_id):
-    if request.method == 'POST':
-        if request.user.is_authenticated and request.user.role == 'admin':
-            subject = get_object_or_404(Subject, id=subject_id)
-            subject.delete()
-            messages.success(request, 'Subject deleted successfully!')
-            
-    return redirect('subject_list')
+    if request.user.is_authenticated and request.user.role == 'admin':
+        if request.method == 'POST':
+            if request.user.is_authenticated and request.user.role == 'admin':
+                subject = get_object_or_404(Subject, id=subject_id)
+                subject.delete()
+                messages.success(request, 'Subject deleted successfully!')
+                
+        return redirect('subject_list')
 
 
 def search_view(request):
@@ -100,62 +102,99 @@ def quiz_list_view(request, subject_id):
     return render(request, 'quizzes/quiz_list.html', context)
 
 def create_quiz_view(request, subject_id):
-    subject = get_object_or_404(Subject, id=subject_id)
+    if request.user.is_authenticated and request.user.role == 'admin':
+        subject = get_object_or_404(Subject, id=subject_id)
 
-    if request.method == 'POST':
-        upload_type = request.POST.get('upload_type') 
+        if request.method == 'POST':
+            upload_type = request.POST.get('upload_type') 
 
-        if upload_type == 'excel':
-            title = request.POST.get('quiz_title')
-            duration = request.POST.get('quiz_duration')
-            excel_file = request.FILES.get('excel_file')
+            if upload_type == 'excel':
+                title = request.POST.get('quiz_title')
+                duration = request.POST.get('quiz_duration')
+                excel_file = request.FILES.get('excel_file')
 
-            if not excel_file or not excel_file.name.endswith(('.xlsx', '.xls')):
-                messages.error(request, 'Please upload a valid Excel file.(.xlsx)')
-                return redirect('create_quiz', subject_id=subject.id)
+                if not excel_file or not excel_file.name.endswith(('.xlsx', '.xls')):
+                    messages.error(request, 'Please upload a valid Excel file.(.xlsx)')
+                    return redirect('create_quiz', subject_id=subject.id)
 
-            quiz = Quiz.objects.create(subject=subject, title=title, duration=duration)
+                quiz = Quiz.objects.create(subject=subject, title=title, duration=duration)
 
-            wb = openpyxl.load_workbook(excel_file)
-            sheet = wb.active
+                wb = openpyxl.load_workbook(excel_file)
+                sheet = wb.active
 
-            for row in sheet.iter_rows(min_row=2, values_only=True):
-                if not row[0]:  
-                    continue
-                
-                q_content = str(row[0])
-                options = [row[1], row[2], row[3], row[4]]
-                options = [str(opt) for opt in options if opt is not None] 
-                
-                correct_val = str(row[5]).strip().upper() if row[5] is not None else '1'
-
-                if correct_val in ['A', 'B', 'C', 'D']:
-                    mapping = {'A': 0, 'B': 1, 'C': 2, 'D': 3}
-                    correct_idx = mapping[correct_val]
-                else:
-                    try:
-                        correct_idx = int(float(correct_val)) - 1
-                        correct_idx = max(0, min(correct_idx, 3))
-                    except ValueError:
-                        correct_idx = 0
+                for row in sheet.iter_rows(min_row=2, values_only=True):
+                    if not row[0]:  
+                        continue
                     
-                explanation = str(row[6]) if len(row) > 6 and row[6] else ''
+                    q_content = str(row[0])
+                    options = [row[1], row[2], row[3], row[4]]
+                    options = [str(opt) for opt in options if opt is not None] 
+                    
+                    correct_val = str(row[5]).strip().upper() if row[5] is not None else '1'
 
-                question = Question.objects.create(quiz=quiz, content=q_content, explanation=explanation)
+                    if correct_val in ['A', 'B', 'C', 'D']:
+                        mapping = {'A': 0, 'B': 1, 'C': 2, 'D': 3}
+                        correct_idx = mapping[correct_val]
+                    else:
+                        try:
+                            correct_idx = int(float(correct_val)) - 1
+                            correct_idx = max(0, min(correct_idx, 3))
+                        except ValueError:
+                            correct_idx = 0
+                        
+                    explanation = str(row[6]) if len(row) > 6 and row[6] else ''
 
-                for idx, opt_content in enumerate(options):
-                    is_correct = (idx == correct_idx)
-                    Answer.objects.create(question=question, content=opt_content, is_correct=is_correct)
+                    question = Question.objects.create(quiz=quiz, content=q_content, explanation=explanation)
 
-            messages.success(request, 'Quiz created from Excel file successfully!')
-            return redirect('quiz_list', subject_id=subject.id)
+                    for idx, opt_content in enumerate(options):
+                        is_correct = (idx == correct_idx)
+                        Answer.objects.create(question=question, content=opt_content, is_correct=is_correct)
 
-        elif upload_type == 'manual':
-            title = request.POST.get('quiz_title')
-            duration = request.POST.get('quiz_duration')
+                messages.success(request, 'Quiz created from Excel file successfully!')
+                return redirect('quiz_list', subject_id=subject.id)
+
+            elif upload_type == 'manual':
+                title = request.POST.get('quiz_title')
+                duration = request.POST.get('quiz_duration')
+                total_questions = int(request.POST.get('total_questions', 0))
+
+                quiz = Quiz.objects.create(subject=subject, title=title, duration=duration)
+
+                for i in range(1, total_questions + 1):
+                    q_content = request.POST.get(f'q_content_{i}')
+                    q_explanation = request.POST.get(f'q_explanation_{i}', '')
+
+                    if q_content:
+                        question = Question.objects.create(quiz=quiz, content=q_content, explanation=q_explanation)
+                        options = request.POST.getlist(f'q_opt_{i}')
+                        correct_idx_str = request.POST.get(f'q_correct_{i}')
+                        correct_idx = int(correct_idx_str) if correct_idx_str and correct_idx_str.isdigit() else 0
+
+                        for opt_idx, opt_content in enumerate(options):
+                            is_correct = (opt_idx == correct_idx)
+                            Answer.objects.create(question=question, content=opt_content, is_correct=is_correct)
+
+                messages.success(request, 'Quiz created manually successfully!')
+                return redirect('quiz_list', subject_id=subject.id)
+
+        return render(request, 'quizzes/create_quiz.html', {'subject': subject})
+
+def edit_quiz_view(request, quiz_id):
+    if request.user.is_authenticated and request.user.role == 'admin':
+        quiz = get_object_or_404(Quiz, id=quiz_id)
+        
+        if not (request.user.is_authenticated and request.user.role == 'admin'):
+            messages.error(request, 'You do not have permission to edit this quiz.')
+            return redirect('quiz_list', subject_id=quiz.subject.id)
+
+        if request.method == 'POST':
+            quiz.title = request.POST.get('quiz_title')
+            quiz.duration = request.POST.get('quiz_duration')
+            quiz.save()
+
             total_questions = int(request.POST.get('total_questions', 0))
 
-            quiz = Quiz.objects.create(subject=subject, title=title, duration=duration)
+            quiz.questions.all().delete()
 
             for i in range(1, total_questions + 1):
                 q_content = request.POST.get(f'q_content_{i}')
@@ -171,59 +210,25 @@ def create_quiz_view(request, subject_id):
                         is_correct = (opt_idx == correct_idx)
                         Answer.objects.create(question=question, content=opt_content, is_correct=is_correct)
 
-            messages.success(request, 'Quiz created manually successfully!')
-            return redirect('quiz_list', subject_id=subject.id)
+            messages.success(request, 'Quiz updated successfully!')
+            return redirect('quiz_list', subject_id=quiz.subject.id)
 
-    return render(request, 'quizzes/create_quiz.html', {'subject': subject})
-
-def edit_quiz_view(request, quiz_id):
-    quiz = get_object_or_404(Quiz, id=quiz_id)
-    
-    if not (request.user.is_authenticated and request.user.role == 'admin'):
-        messages.error(request, 'You do not have permission to edit this quiz.')
-        return redirect('quiz_list', subject_id=quiz.subject.id)
-
-    if request.method == 'POST':
-        quiz.title = request.POST.get('quiz_title')
-        quiz.duration = request.POST.get('quiz_duration')
-        quiz.save()
-
-        total_questions = int(request.POST.get('total_questions', 0))
-
-        quiz.questions.all().delete()
-
-        for i in range(1, total_questions + 1):
-            q_content = request.POST.get(f'q_content_{i}')
-            q_explanation = request.POST.get(f'q_explanation_{i}', '')
-
-            if q_content:
-                question = Question.objects.create(quiz=quiz, content=q_content, explanation=q_explanation)
-                options = request.POST.getlist(f'q_opt_{i}')
-                correct_idx_str = request.POST.get(f'q_correct_{i}')
-                correct_idx = int(correct_idx_str) if correct_idx_str and correct_idx_str.isdigit() else 0
-
-                for opt_idx, opt_content in enumerate(options):
-                    is_correct = (opt_idx == correct_idx)
-                    Answer.objects.create(question=question, content=opt_content, is_correct=is_correct)
-
-        messages.success(request, 'Quiz updated successfully!')
-        return redirect('quiz_list', subject_id=quiz.subject.id)
-
-    return render(request, 'quizzes/edit_quiz.html', {'quiz': quiz})
+        return render(request, 'quizzes/edit_quiz.html', {'quiz': quiz})
 
 
 def delete_quiz(request, quiz_id):
-    if request.method == 'POST':
-        if request.user.is_authenticated and request.user.role == 'admin':
-            quiz = get_object_or_404(Quiz, id=quiz_id)
-            subject_id = quiz.subject.id 
-            quiz.delete()
-            messages.success(request, 'Quiz deleted successfully!')
-            return redirect('quiz_list', subject_id=subject_id)
-        else:
-            messages.error(request, 'You do not have permission to perform this action.')
-            
-    return redirect('subject_list') 
+    if request.user.is_authenticated and request.user.role == 'admin':
+        if request.method == 'POST':
+            if request.user.is_authenticated and request.user.role == 'admin':
+                quiz = get_object_or_404(Quiz, id=quiz_id)
+                subject_id = quiz.subject.id 
+                quiz.delete()
+                messages.success(request, 'Quiz deleted successfully!')
+                return redirect('quiz_list', subject_id=subject_id)
+            else:
+                messages.error(request, 'You do not have permission to perform this action.')
+                
+        return redirect('subject_list') 
 
 def exam_view(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)

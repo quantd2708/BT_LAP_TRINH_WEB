@@ -35,7 +35,6 @@
     pointer-events: none;
 }
 
-/* kiểu chữ Logo, được dùng ở nhiều nơi */
 .logo {
     font-size: 26px;
     font-weight: 800;
@@ -44,7 +43,6 @@
     margin: 0;
 }
 
-/* còn lại trong home.css là các điểm chung như container, hero etc. */
 
 /* Body và chung */
 * {

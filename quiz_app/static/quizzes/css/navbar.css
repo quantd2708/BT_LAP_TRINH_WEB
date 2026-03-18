@@ -77,3 +77,45 @@
 .user-icon {
     font-size: 32px;
 }
+
+.pagination {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    align-items: flex-end;
+}
+
+.page-link {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 35px;
+    height: 35px;
+    background-color: #2c2c2c;
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 14px;
+    transition: 0.2s;
+    border: none;
+}
+
+.page-link:hover {
+    background-color: #3f3f3f;
+    color: #ffffff;
+}
+
+.page-link.active {
+    background: #2ecc71;
+    color: #ffffff;
+    pointer-events: none;
+}
+
+.page-dots {
+    color: #333;
+    font-weight: bold;
+    padding: 0 5px;
+    font-size: 16px;
+    line-height: 35px;
+}

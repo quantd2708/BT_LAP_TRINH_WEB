@@ -7,7 +7,6 @@
     <title>Account List - QUIZZZ</title>
     <link rel="stylesheet" href="{% static 'quizzes/css/navbar.css' %}">
     <link rel="stylesheet" href="{% static 'quizzes/css/home.css' %}">
-    <!-- we pull in quiz_list.css for action button styles (edit/delete) -->
     <link rel="stylesheet" href="{% static 'quizzes/css/quiz_list.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -61,6 +60,26 @@
                 </tbody>
             </table>
         </div>
+
+        {% if page_obj.has_other_pages %}
+        <div class="pagination" style="margin-top: 30px; margin-bottom: 20px;">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" class="page-link"><i class="fas fa-chevron-left"></i></a>
+            {% endif %}
+            
+            {% for i in page_range %}
+                {% if i == page_obj.paginator.ELLIPSIS %}
+                    <span class="page-dots">...</span>
+                {% else %}
+                    <a href="?page={{ i }}{% if query %}&q={{ query }}{% endif %}" class="page-link {% if page_obj.number == i %}active{% endif %}">{{ i }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}" class="page-link"><i class="fas fa-chevron-right"></i></a>
+            {% endif %}
+        </div>
+        {% endif %}
     </main>
 
     <!-- modal for new account (simple) -->
