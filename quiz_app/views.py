@@ -111,7 +111,7 @@ def create_quiz_view(request, subject_id):
             excel_file = request.FILES.get('excel_file')
 
             if not excel_file or not excel_file.name.endswith(('.xlsx', '.xls')):
-                messages.error(request, 'Vui lòng upload file Excel hợp lệ (.xlsx)')
+                messages.error(request, 'Please upload a valid Excel file.(.xlsx)')
                 return redirect('create_quiz', subject_id=subject.id)
 
             quiz = Quiz.objects.create(subject=subject, title=title, duration=duration)
@@ -147,7 +147,7 @@ def create_quiz_view(request, subject_id):
                     is_correct = (idx == correct_idx)
                     Answer.objects.create(question=question, content=opt_content, is_correct=is_correct)
 
-            messages.success(request, 'Tạo đề thi từ file Excel thành công!')
+            messages.success(request, 'Quiz created from Excel file successfully!')
             return redirect('quiz_list', subject_id=subject.id)
 
         elif upload_type == 'manual':
@@ -171,7 +171,7 @@ def create_quiz_view(request, subject_id):
                         is_correct = (opt_idx == correct_idx)
                         Answer.objects.create(question=question, content=opt_content, is_correct=is_correct)
 
-            messages.success(request, 'Tạo đề thi thủ công thành công!')
+            messages.success(request, 'Quiz created manually successfully!')
             return redirect('quiz_list', subject_id=subject.id)
 
     return render(request, 'quizzes/create_quiz.html', {'subject': subject})
