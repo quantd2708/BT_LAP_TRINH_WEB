@@ -11,48 +11,42 @@ from .models import CustomUser
 
 def login_view(request):
     if request.method == 'POST':
-        # Lấy dữ liệu từ thẻ input name="username" và name="password"
         u = request.POST.get('username')
         p = request.POST.get('password')
         
-        # Hàm authenticate sẽ kiểm tra xem user/pass có đúng trong DB không
         user = authenticate(request, username=u, password=p)
         if user is not None:
-            login(request, user) # Tạo phiên đăng nhập (session)
-            return redirect('home') # Chuyển hướng về trang chủ
+            login(request, user) 
+            return redirect('home') 
         else:
-            messages.error(request, 'Tên đăng nhập hoặc mật khẩu không đúng!')
+            messages.error(request, 'The username or password is incorrect!')
             
     return render(request, 'accounts/login.html')
 
 def register_view(request):
     if request.method == 'POST':
-        # Lấy dữ liệu từ form đăng ký
         fn = request.POST.get('full_name')
         u = request.POST.get('username')
         p = request.POST.get('password')
         rp = request.POST.get('re_password')
 
-        # Kiểm tra logic cơ bản
         if p != rp:
-            messages.error(request, 'Mật khẩu xác nhận không khớp!')
+            messages.error(request, 'The confirmed password does not match!')
             return redirect('register')
             
         if CustomUser.objects.filter(username=u).exists():
-            messages.error(request, 'Tên đăng nhập này đã có người sử dụng!')
+            messages.error(request, 'This username is already taken!')
             return redirect('register')
 
-        # Tạo tài khoản mới vào database
         user = CustomUser.objects.create_user(username=u, password=p, full_name=fn)
         
-        # Đăng nhập luôn cho user sau khi tạo xong
         login(request, user)
         return redirect('home')
 
     return render(request, 'accounts/register.html')
 
 def logout_user(request):
-    logout(request) # Xóa phiên đăng nhập
+    logout(request) 
     return redirect('login')
 
 
@@ -114,13 +108,12 @@ def delete_account(request):
         except CustomUser.DoesNotExist:
             return JsonResponse({'success': False, 'message': 'User not found'})
     return JsonResponse({'success': False, 'message': 'Invalid method'})
+
 @login_required
 def account_list_view(request):
-    # Chỉ admin mới được vào trang này
     if request.user.role != 'admin':
         return redirect('home')
 
-    # Lấy danh sách user thường, hỗ trợ tìm kiếm
     query = request.GET.get('q', '').strip()
     users = CustomUser.objects.filter(role='user')
     if query:

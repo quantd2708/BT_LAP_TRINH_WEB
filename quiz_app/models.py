@@ -1,5 +1,5 @@
 from django.db import models
-from django.conf import settings # Dùng để gọi CustomUser
+from django.conf import settings 
 
 # Bảng Subjects (Danh mục môn học)
 class Subject(models.Model):
@@ -43,8 +43,9 @@ class Result(models.Model):
     score = models.DecimalField(max_digits=5, decimal_places=2)
     time_spent = models.IntegerField() # giây
     completed_at = models.DateTimeField(auto_now_add=True)
-
-class ResultDetail(models.Model): # Đã đổi tên từ UserAnswer
+    
+# ResultDetail sẽ lưu chi tiết từng câu hỏi mà user đã trả lời trong một lần làm bài, để có thể xem lại sau này
+class ResultDetail(models.Model): 
     result = models.ForeignKey(Result, on_delete=models.CASCADE, related_name='result_details')
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     selected_answer = models.ForeignKey(Answer, on_delete=models.CASCADE, null=True, blank=True)

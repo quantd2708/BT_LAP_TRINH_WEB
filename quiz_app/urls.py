@@ -5,7 +5,6 @@ urlpatterns = [
     path('subjects/', views.subject_list_view, name='subject_list'),
     path('subjects/add/', views.add_subject, name='add_subject'),
     path('subjects/delete/<int:subject_id>/', views.delete_subject, name='delete_subject'),
-    # path('subjects/edit/<int:subject_id>/', views.edit_subject, name='edit_subject'),
 
     path('subjects/<int:subject_id>/quizzes/', views.quiz_list_view, name='quiz_list'),
     path('subjects/<int:subject_id>/quizzes/create/', views.create_quiz_view, name='create_quiz'),
