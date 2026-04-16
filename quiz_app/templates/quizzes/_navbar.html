@@ -42,7 +42,6 @@
 </nav>
 
 <script>
-    // Xử lý tìm kiếm (Giữ nguyên)
     const navInput = document.getElementById('navSearch');
     if (navInput) {
         navInput.addEventListener('keypress', function(e) {
@@ -53,18 +52,15 @@
         });
     }
 
-    // Xử lý Dropdown Menu cho Avatar
     const avatarBtn = document.getElementById('userAvatarBtn');
     const userDropdown = document.getElementById('userDropdown');
 
     if (avatarBtn && userDropdown) {
-        // Bật/tắt menu khi bấm vào avatar
         avatarBtn.addEventListener('click', function(e) {
-            e.stopPropagation(); // Ngăn sự kiện click lan ra ngoài
+            e.stopPropagation(); 
             userDropdown.style.display = userDropdown.style.display === 'block' ? 'none' : 'block';
         });
 
-        // Tự động đóng menu khi bấm ra vùng khác trên màn hình
         document.addEventListener('click', function(e) {
             if (!userDropdown.contains(e.target) && e.target !== avatarBtn) {
                 userDropdown.style.display = 'none';

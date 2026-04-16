@@ -19,16 +19,7 @@
                 <span class="line"></span>
                 <h2>Create Quiz</h2>
             </div>
-            <p class="sidebar-sub">Choose your creation method</p>
-            
-            <button class="mode-btn active" data-mode="ai">
-                <i class="fas fa-robot"></i>
-                <div class="btn-txt">
-                    <strong>Generate with AI</strong>
-                    <span>Auto-create from PDF</span>
-                </div>
-            </button>
-            
+            <p class="sidebar-sub">Choose your creation method</p>           
             <button class="mode-btn" data-mode="manual">
                 <i class="fas fa-edit"></i>
                 <div class="btn-txt">
@@ -44,39 +35,17 @@
                     <span>Create quiz quickly from file</span>
                 </div>
             </button>
+
+            <button class="mode-btn" data-mode="bank" type="button">
+                <i class="fas fa-database" style="color: #3498db;"></i>
+                <div class="btn-txt">
+                    <strong>From Question Bank</strong>
+                    <span>Select existing questions</span>
+                </div>
+            </button>
         </aside>
 
         <section class="create-main">
-            <div class="mode-content ai-mode">
-                <div class="work-area">
-                    <h3>Create Quiz with AI</h3>
-                    <p>Upload your PDF document and our AI will generate questions for you.</p>
-                    
-                    <div class="upload-zone">
-                        <div class="upload-box">
-                            <i class="fas fa-file-pdf pdf-icon"></i>
-                            <p><strong>Upload PDF file to start</strong></p>
-                            <span class="hint">Maximum size: 10MB</span>
-                            <button class="btn-outline">Choose file</button>
-                            <span class="hint">or drag and drop file here</span>
-                        </div>
-                    </div>
-                </div>
-
-                <aside class="config-panel">
-                    <h4>Configuration</h4>
-                    <div class="form-group">
-                        <label>Number of questions</label>
-                        <input type="number" min="1" placeholder="Auto" class="input-gray" id="ai-question-count">
-                    </div>
-                    <div class="ai-notice">
-                        <i class="fas fa-lightbulb"></i>
-                        <p>AI will analyze your document and generate multiple-choice questions automatically.</p>
-                    </div>
-                    <button class="btn-submit-full">Create Now</button>
-                </aside>
-            </div>
-
             <div class="mode-content manual-mode" style="display:none;">
                 <form method="POST" action="{% url 'create_quiz' subject.id %}" class="manual-workspace" id="manualQuizForm">
                     {% csrf_token %}
@@ -185,11 +154,53 @@
                     </div>
                 </form>
             </div>
+
+            <div class="mode-content bank-mode" style="display:none;">
+                <form method="POST" action="{% url 'create_quiz' subject.id %}" class="manual-workspace">
+                    {% csrf_token %}
+                    <input type="hidden" name="upload_type" value="bank">
+                    
+                    <div class="manual-header excel-header">
+                        <h3>Create Quiz from Question Bank</h3>
+                        <p>Select existing questions from this subject to build your quiz</p>
+                    </div>
+
+                    <div class="excel-form-row">
+                        <div class="excel-form-group">
+                            <label>Quiz title</label>
+                            <input type="text" name="quiz_title" required placeholder="Enter quiz title..." class="input-gray">
+                        </div>
+                        <div class="excel-form-group fixed-width">
+                            <label>Duration (minutes)</label>
+                            <input type="number" name="quiz_duration" value="45" required class="input-gray">
+                        </div>
+                    </div>
+
+                    <div class="question-list-container" id="bankQuestionContainer" style="max-height: 400px; overflow-y: auto; margin-top: 20px; border: 1px solid #ddd; padding: 10px; border-radius: 8px; background: #fafafa;">
+                        {% for q in existing_questions %}
+                        <div class="bank-q-item" style="padding: 10px; border-bottom: 1px solid #eee; display: flex; align-items: flex-start; gap: 10px; background: white; margin-bottom: 5px; border-radius: 4px;">
+                            <input type="checkbox" name="selected_questions" value="{{ q.id }}" id="q_{{ q.id }}" style="margin-top: 4px; cursor: pointer;">
+                            
+                            <label for="q_{{ q.id }}" style="cursor: pointer; font-weight: normal; margin: 0; width: 100%;">
+                                <strong style="color: #2c3e50;">{{ q.content }}</strong>
+                            </label>
+                        </div>
+                        {% empty %}
+                        <p style="text-align: center; color: #999; padding: 20px;">No existing questions found in the Question Bank for this subject.</p>
+                        {% endfor %}
+                    </div>
+
+                    <div id="bankPagination" style="margin-top: 15px; display: flex; justify-content: center; gap: 5px;"></div>
+
+                    <div class="manual-actions-bottom excel-actions-bottom" style="margin-top: 20px;">
+                        <button type="submit" class="btn-submit-full btn-submit-excel" style="background-color: #2ecc71;">Create Quiz</button>
+                    </div>
+                </form>
+            </div>
         </section>
     </main>
 
     <script>
-        // Chuyển đổi Mode AI / Manual
         document.querySelectorAll('.mode-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
@@ -200,7 +211,6 @@
             });
         });
 
-        // Hàm quan trọng nhất: Đánh số lại toàn bộ name cho form
         function renumberCards() {
             const cards = document.querySelectorAll('.question-card');
             document.getElementById('totalQuestions').value = cards.length;
@@ -217,22 +227,19 @@
                 const num = card.querySelector('.q-number');
                 if (num) num.textContent = qIndex;
 
-                // Set name cho textarea nội dung câu hỏi
                 const qBody = card.querySelector('.q-body textarea:not(.explanation-area)');
                 if (qBody) qBody.name = `q_content_${qIndex}`;
 
-                // Set name cho textarea giải thích (nếu có)
                 const expArea = card.querySelector('.explanation-area');
                 if (expArea) expArea.name = `q_explanation_${qIndex}`;
 
-                // Set name và value cho các đáp án
                 const rows = card.querySelectorAll('.option-row');
                 rows.forEach((row, optIdx) => {
                     const radio = row.querySelector('input[type=radio]');
                     const txt = row.querySelector('input[type=text]');
                     if (radio) {
                         radio.name = `q_correct_${qIndex}`;
-                        radio.value = optIdx; // Value chính là thứ tự của đáp án (0, 1, 2...)
+                        radio.value = optIdx; 
                     }
                     if (txt) {
                         txt.name = `q_opt_${qIndex}`;
@@ -251,7 +258,6 @@
                 }
             });
 
-            // Hiệu ứng màu xanh cho đáp án đúng
             const radio = row.querySelector('input[type=radio]');
             radio.addEventListener('change', () => {
                 const allRows = row.closest('.options-group').querySelectorAll('.option-row');
@@ -308,7 +314,6 @@
             card.querySelectorAll('.option-row').forEach(attachOptionListeners);
         }
 
-        // Thêm câu hỏi mới
         document.querySelector('.btn-add-q-manual').addEventListener('click', () => {
             const container = document.querySelector('.questions-container');
             const clone = document.createElement('div');
@@ -348,11 +353,116 @@
             renumberCards();
         });
 
-        // Khởi tạo lần đầu
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.question-card').forEach(attachCardListeners);
             renumberCards();
         });
+        
+        document.addEventListener('DOMContentLoaded', function() {
+    const items = document.querySelectorAll('.bank-q-item');
+    if (items.length > 0) {
+        const itemsPerPage = 10; // Số câu hỏi trên 1 trang
+        let currentPage = 1;     // KHAI BÁO BIẾN Ở ĐÂY
+        const totalPages = Math.ceil(items.length / itemsPerPage);
+        const paginationContainer = document.getElementById('bankPagination');
+
+        function displayPage(page) {
+            currentPage = page;
+            
+            // Ẩn/Hiện các câu hỏi tương ứng với trang
+            items.forEach((item, index) => {
+                if (index >= (page - 1) * itemsPerPage && index < page * itemsPerPage) {
+                    item.style.display = 'flex'; 
+                } else {
+                    item.style.display = 'none'; 
+                }
+            });
+            renderPagination();
+        }
+
+        function renderPagination() {
+            paginationContainer.innerHTML = '';
+            if (totalPages <= 1) return; // Nếu chỉ có 1 trang thì không hiện nút bấm
+
+            // --- Nút "Trang trước" (Prev) ---
+            const prevBtn = document.createElement('button');
+            prevBtn.type = 'button';
+            prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+            prevBtn.className = 'bank-page-btn';
+            if (currentPage === 1) prevBtn.disabled = true;
+            prevBtn.onclick = () => { if (currentPage > 1) displayPage(currentPage - 1) };
+            paginationContainer.appendChild(prevBtn);
+
+            // --- Hàm phụ để tạo nút số ---
+            function createPageBtn(pageNumber) {
+                const pageBtn = document.createElement('button');
+                pageBtn.type = 'button';
+                pageBtn.innerText = pageNumber;
+                pageBtn.className = `bank-page-btn ${currentPage === pageNumber ? 'active' : ''}`;
+                pageBtn.onclick = () => displayPage(pageNumber);
+                paginationContainer.appendChild(pageBtn);
+            }
+
+            // --- Hàm phụ để tạo dấu "..." ---
+            function createDots() {
+                const dots = document.createElement('span');
+                dots.innerText = '...';
+                dots.style.padding = '6px 8px';
+                dots.style.color = '#7f8c8d';
+                dots.style.fontWeight = 'bold';
+                paginationContainer.appendChild(dots);
+            }
+
+            // --- LOGIC TÍNH TOÁN HIỂN THỊ DẤU "..." ---
+            if (totalPages <= 5) {
+                // Nếu <= 5 trang: Hiện tất cả, không cần dấu ...
+                for (let i = 1; i <= totalPages; i++) {
+                    createPageBtn(i);
+                }
+            } else {
+                // Luôn hiển thị trang 1
+                createPageBtn(1);
+
+                // Nếu đang ở xa trang 1 -> thêm ... ở đầu
+                if (currentPage > 3) {
+                    createDots();
+                }
+
+                // Tính toán các trang ở giữa (Thường hiển thị Trang hiện tại và 2 trang bên cạnh)
+                let startPage = Math.max(2, currentPage - 1);
+                let endPage = Math.min(totalPages - 1, currentPage + 1);
+
+                // Xử lý bù trừ ở 2 mép đầu cuối
+                if (currentPage === 1) endPage = 3;
+                if (currentPage === totalPages) startPage = totalPages - 2;
+
+                for (let i = startPage; i <= endPage; i++) {
+                    createPageBtn(i);
+                }
+
+                // Nếu đang ở xa trang cuối -> thêm ... ở cuối
+                if (currentPage < totalPages - 2) {
+                    createDots();
+                }
+
+                // Luôn hiển thị trang cuối cùng
+                createPageBtn(totalPages);
+            }
+
+            // --- Nút "Trang sau" (Next) ---
+            const nextBtn = document.createElement('button');
+            nextBtn.type = 'button';
+            nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            nextBtn.className = 'bank-page-btn';
+            if (currentPage === totalPages) nextBtn.disabled = true;
+            nextBtn.onclick = () => { if (currentPage < totalPages) displayPage(currentPage + 1) };
+            paginationContainer.appendChild(nextBtn);
+        }
+
+        // Gọi hàm hiển thị trang đầu tiên lúc mới load
+        displayPage(1);
+    }
+});
     </script>
 </body>
 </html>

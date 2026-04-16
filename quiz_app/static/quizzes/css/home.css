@@ -1,11 +1,10 @@
-/* CSS Variables */
+
 :root {
     --dark-blue: #1a3a52;
     --light-gray: #f5f5f5;
     --border-color: #ddd;
 }
 
-/* search-box shared style for quiz and subject pages */
 .search-box {
     position: relative;
     flex: 0 1 300px;
@@ -44,7 +43,6 @@
 }
 
 
-/* Body và chung */
 * {
     margin: 0;
     padding: 0;
@@ -57,14 +55,12 @@ body {
     color: #333;
 }
 
-/* Container chính */
 .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
 }
 
-/* Hero Banner */
 .hero-banner {
     background: linear-gradient(135deg, var(--dark-blue) 0%, #2d5a7b 100%);
     color: white;
@@ -88,7 +84,6 @@ body {
     margin: 0 auto;
 }
 
-/* Section Styles */
 .section {
     margin-bottom: 60px;
 }
@@ -131,7 +126,6 @@ body {
     gap: 12px;
 }
 
-/* Grid Container */
 .grid-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -143,7 +137,6 @@ body {
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
 }
 
-/* Subject Card */
 .subject-card {
     background: white;
     border-radius: 10px;
@@ -197,7 +190,6 @@ body {
     font-size: 14px;
 }
 
-/* Quiz Card */
 .quiz-card {
     background: white;
     border-radius: 10px;
@@ -208,7 +200,6 @@ body {
     flex-direction: column;
 }
 
-/* Account list table styles */
 .account-table-container {
     width: 100%;
     overflow-x: auto;
@@ -239,7 +230,6 @@ body {
     border-bottom: none;
 }
 
-/* reuse action button styles for account rows */
 .account-table .action-btn {
     background: none;
     border: none;
@@ -297,9 +287,8 @@ body {
     margin-right: 5px;
 }
 
-/* Button Styles */
 .btn-start {
-    background: #2ecc71; /* changed to green */
+    background: #2ecc71; 
     color: white !important;
     border: none;
     padding: 12px 25px;
@@ -327,7 +316,6 @@ body {
     transform: translateY(0);
 }
 
-/* ==== History page styles ==== */
 .header-nav {
     padding-bottom: 18px;
     margin-bottom: 28px;
@@ -424,7 +412,6 @@ body {
 
 .btn-retry:hover { box-shadow: 0 6px 18px rgba(46,204,113,0.16); transform: translateY(-2px); }
 
-/* filter button for history */
 .btn-filter {
     background: white;
     color: var(--dark-blue);
@@ -442,7 +429,6 @@ body {
 
 .btn-filter.active { background: var(--dark-blue); color: white; border-color: var(--dark-blue); }
 
-/* Responsive */
 @media (max-width: 768px) {
     .navbar {
         flex-direction: column;
@@ -466,7 +452,6 @@ body {
         width: 100%;
     }
 
-    /* ensure the shared search-box is full-width on small screens */
     .search-box {
         width: 100%;
     }
@@ -484,7 +469,6 @@ body {
         gap: 15px;
     }
 
-    /* mobile adjustments for shared header elements */
     .back-button,
     .search-box,
     .btn-start {
@@ -492,12 +476,10 @@ body {
     }
 }
 
-/* Cập nhật lại border-radius cho ảnh subject-card (bạn muốn dùng 8px thay vì 5px cũ) */
 .subject-card img {
     border-radius: 8px;
 }
 
-/* Khối placeholder khi môn học không có ảnh */
 .subject-placeholder {
     width: 100%;
     height: 150px;
@@ -514,19 +496,16 @@ body {
     color: #a0aec0;
 }
 
-/* Thu nhỏ nút View All trong Subject card */
 .btn-view-all {
     width: auto;
     padding: 5px 15px;
     font-size: 12px;
 }
 
-/* Lưới 3 cột dành riêng cho Trending Quizzes */
 .grid-container.quizzes-trending {
     grid-template-columns: repeat(3, 1fr);
 }
 
-/* Định dạng lại thông tin trong Quiz Card */
 .quiz-info {
     flex-direction: column;
     gap: 8px;
@@ -542,14 +521,12 @@ body {
     font-weight: bold;
 }
 
-/* Nút Take Quiz */
 .btn-take-quiz {
     display: inline-block;
     text-align: center;
     margin-top: 15px;
 }
 
-/* Responsive cho lưới 3 cột Trending Quizzes */
 @media (max-width: 992px) {
     .grid-container.quizzes-trending {
         grid-template-columns: repeat(2, 1fr);

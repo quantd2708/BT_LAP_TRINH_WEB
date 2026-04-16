@@ -1,4 +1,3 @@
-/* Styles specific to search results page */
 
 .back-link {
     display: inline-block;
@@ -14,7 +13,6 @@
     margin: 15px 0;
 }
 
-/* spacing under heading */
 h3 {
     margin-top: 30px;
     margin-bottom: 20px;
@@ -35,10 +33,6 @@ h3 {
 }
 
 
-/* =========================================
-   Trang Tìm Kiếm (Search Page)
-   ========================================= */
-
 body.search-page {
     background: #f4f7f9;
 }
@@ -55,7 +49,6 @@ body.search-page {
     font-weight: 600;
 }
 
-/* Thanh tìm kiếm lớn */
 .search-bar-large {
     display: flex;
     gap: 10px;
@@ -78,7 +71,6 @@ body.search-page {
     border-radius: 5px;
 }
 
-/* Tiêu đề kết quả tìm kiếm */
 .search-header-title {
     margin-top: 30px;
     margin-bottom: 20px;
@@ -88,12 +80,10 @@ body.search-page {
     color: #e74c3c;
 }
 
-/* Lưới hiển thị kết quả */
 .grid-container.quizzes {
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
 }
 
-/* Quiz Card hiển thị riêng trong Search */
 .search-quiz-card {
     background: white;
     border: 1px solid #eee;
@@ -132,7 +122,6 @@ body.search-page {
     text-decoration: none;
 }
 
-/* Trạng thái không tìm thấy kết quả (Empty state) */
 .empty-result {
     text-align: center;
     padding: 50px 20px;

@@ -60,8 +60,6 @@
         const examForm = document.getElementById('examForm');
         const startTime = Date.now();
         
-        // 1. CÀI ĐẶT ĐỒNG HỒ ĐẾM NGƯỢC
-        // Lấy thời gian từ CSDL (tính bằng phút) và đổi ra giây
         let timeRemaining = parseInt("{{ quiz.duration|default:45 }}") * 60; 
         const timeDisplay = document.getElementById('time-display');
         const timerContainer = document.getElementById('countdown-timer');
@@ -70,54 +68,44 @@
             let minutes = Math.floor(timeRemaining / 60);
             let seconds = timeRemaining % 60;
             
-            // Format thêm số 0 đằng trước nếu nhỏ hơn 10 (VD: 09:05)
             minutes = minutes < 10 ? '0' + minutes : minutes;
             seconds = seconds < 10 ? '0' + seconds : seconds;
             
             timeDisplay.textContent = minutes + ':' + seconds;
             
-            // Cảnh báo màu đỏ khi thời gian còn dưới 1 phút (60 giây)
             if (timeRemaining <= 60 && timeRemaining > 0) {
                 timerContainer.classList.add('time-warning');
             }
         }
 
-        // Gọi ngay lần đầu để hiện số
         updateTimerDisplay();
 
-        // Thiết lập bộ đếm chạy mỗi giây (1000ms)
         const timerInterval = setInterval(function() {
             timeRemaining--;
             updateTimerDisplay();
 
-            // KHI HẾT GIỜ
             if (timeRemaining <= 0) {
-                clearInterval(timerInterval); // Dừng đồng hồ
+                clearInterval(timerInterval); 
                 timeDisplay.textContent = "00:00";
                 
-                // Hiển thị thông báo (dùng setTimeout để DOM kịp update 00:00)
                 setTimeout(() => {
                     alert("Đã hết thời gian làm bài! Hệ thống sẽ tự động thu bài của bạn.");
-                    submitExam(); // Tự động nộp
+                    submitExam(); 
                 }, 100);
             }
         }, 1000);
 
-        // 2. HÀM XỬ LÝ NỘP BÀI
         function submitExam() {
-            // Tính toán thời gian đã làm
             const endTime = Date.now();
             const timeSpentSeconds = Math.floor((endTime - startTime) / 1000);
             document.getElementById('timeSpent').value = timeSpentSeconds;
             
-            // Nộp form về backend
             examForm.submit();
         }
 
-        // 3. KHI NGƯỜI DÙNG CHỦ ĐỘNG BẤM NÚT NỘP BÀI SỚM
         document.getElementById('btnSubmitExam').addEventListener('click', function() {
             if (confirm('Are you sure you want to submit early?')) {
-                clearInterval(timerInterval); // Dừng đồng hồ
+                clearInterval(timerInterval); 
                 submitExam();
             }
         });

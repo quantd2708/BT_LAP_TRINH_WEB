@@ -1,4 +1,4 @@
-/* CSS Variables */
+
 :root {
     --dark-blue: #1a3a52;
     --light-gray: #f5f5f5;
@@ -8,7 +8,6 @@
     --light-gray-text: #999;
 }
 
-/* Reset and General Styles */
 * {
     margin: 0;
     padding: 0;
@@ -21,14 +20,12 @@ body {
     color: #333;
 }
 
-/* Container */
 .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
 }
 
-/* Header Navigation */
 .header-nav {
     display: flex;
     justify-content: space-between;
@@ -65,7 +62,6 @@ body {
     border-radius: 2px;
 }
 
-/* legacy helper, may not be used anymore */
 .header-actions {
     display: flex;
     align-items: center;
@@ -74,7 +70,6 @@ body {
     flex: 1;
 }
 
-/* Section Title */
 .section-title {
     margin-bottom: 30px;
 }
@@ -83,7 +78,6 @@ body {
     margin: 0;
 }
 
-/* Section Header */
 .section-header {
     display: flex;
     flex-direction: column;
@@ -91,7 +85,6 @@ body {
     margin-bottom: 40px;
 }
 
-/* ĐOẠN MỚI: Giúp đẩy Search và Add Quiz sang phải */
 .header-top {
     display: flex;
     justify-content: space-between;
@@ -188,7 +181,6 @@ body {
     transform: translateY(0);
 }
 
-/* ĐOẠN MỚI: Giữ tên môn học trên 1 dòng sát nút Back */
 .subject-title {
     font-size: 24px;
     font-weight: 700;
@@ -197,7 +189,6 @@ body {
     white-space: nowrap;
 }
 
-/* Quiz List */
 .quiz-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -205,7 +196,6 @@ body {
     margin-bottom: 30px;
 }
 
-/* Quiz Item */
 .quiz-item {
     background: white;
     border-radius: 8px;
@@ -223,7 +213,6 @@ body {
     transform: translateY(-5px);
 }
 
-/* Quiz Header */
 .quiz-header {
     display: flex;
     justify-content: space-between;
@@ -250,7 +239,6 @@ body {
     flex-shrink: 0;
 }
 
-/* Action Buttons */
 .action-btn {
     background: none;
     border: none;
@@ -271,7 +259,6 @@ body {
     color: #e74c3c;
 }
 
-/* Quiz Meta */
 .quiz-meta {
     margin-bottom: 8px;
 }
@@ -286,7 +273,7 @@ body {
     font-weight: 600;
 }
 
-/* Quiz Info */
+
 .quiz-info {
     display: flex;
     gap: 16px;
@@ -309,7 +296,6 @@ body {
     text-align: center;
 }
 
-/* Quiz Footer */
 .quiz-footer {
     display: flex;
     justify-content: stretch;
@@ -340,7 +326,6 @@ body {
     transform: translateY(0);
 }
 
-/* Modal Styles */
 .modal {
     display: none;
     position: fixed;
@@ -483,9 +468,7 @@ body {
     transform: translateY(0);
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
-    /* adjust new header navigation layout */
     .header-nav {
         flex-direction: column;
         align-items: stretch;
@@ -627,27 +610,22 @@ body {
     }
 }
 
-/* Căn lề cho phần main container */
 .quiz-list-container {
     margin-top: 40px;
 }
 
-/* Khung bọc ô tìm kiếm trên Header */
 .search-box.header-search {
     background: white;
     border: 1px solid var(--border-color);
     border-radius: 5px;
 }
 
-/* Đảm bảo thẻ <a> nút Add Quiz hiển thị chuẩn */
 .btn-add-quiz {
     width: auto;
     text-decoration: none;
     display: inline-block;
-    /* Giữ nguyên các thuộc tính background, color, padding... bạn đã viết */
 }
 
-/* Căn giữa icon bên trong các nút Action (Edit/Delete) */
 .action-btn {
     text-decoration: none;
     display: inline-flex;
@@ -655,7 +633,6 @@ body {
     justify-content: center;
 }
 
-/* Giữ form xóa nằm trên cùng một dòng với nút Edit */
 .form-delete-quiz {
     display: inline;
 }

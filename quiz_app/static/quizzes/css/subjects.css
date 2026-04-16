@@ -1,6 +1,4 @@
-/* Tận dụng các biến và class từ home.css */
 
-/* Shared header navigation styles (mimic quiz_list layout) */
 .header-nav {
     display: flex;
     justify-content: space-between;
@@ -84,8 +82,8 @@
 
 .grid-container { 
     display: grid; 
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Tự động chia cột theo màn hình */
-    gap: 30px; /* Tăng khoảng cách giữa các thẻ */
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px; 
     padding: 20px 0;
 }
 
@@ -141,12 +139,12 @@
 }
 
 .btn-start {
-    display: inline-flex; /* Đảm bảo nút bao bọc quanh chữ */
+    display: inline-flex; 
     align-items: center;
     justify-content: center;
     min-width: 80px;
-    color: white !important; /* Buộc chữ phải là màu trắng */
-    background: #2ecc71; /* green match quiz_list */
+    color: white !important; 
+    background: #2ecc71;
     padding: 8px 15px;
     font-size: 12px;
     text-decoration: none;
@@ -161,9 +159,9 @@
     transform: translateY(-2px);
 }
 
-/* Responsive */
+
 @media (max-width: 768px) {
-    /* adapt new header structure */
+
     .header-nav {
         flex-wrap: wrap;
         gap: 10px;
@@ -215,7 +213,6 @@
     }
 }
 
-/* Modal Styles */
 .modal {
     display: none;
     position: fixed;
@@ -387,30 +384,25 @@
     }
 }
 
-/* Căn lề cho thẻ main */
 .subjects-main {
     margin-top: 40px;
 }
 
-/* Kích thước nút Add Subject */
 .btn-add-subject {
     width: auto;
     padding: 10px 20px;
 }
 
-/* Header bên trong từng thẻ Subject Card */
 .subject-card-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
 }
 
-/* Form xóa môn học */
 .delete-subject-form {
     display: inline;
 }
 
-/* Nút xóa môn học */
 .btn-delete-subject {
     background: none;
     border: none;
@@ -425,7 +417,6 @@
     color: #c0392b;
 }
 
-/* Nút View All trong Subject Card */
 .btn-view-subject {
     width: auto;
     padding: 5px 15px;

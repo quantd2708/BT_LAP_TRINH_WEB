@@ -92,14 +92,12 @@
         const cancelBtn = document.getElementById('cancelBtn');
         const form = document.getElementById('addSubjectForm');
 
-        // 1. Logic cho Modal Thêm môn học (Chỉ chạy khi có nút Add)
         if (addSubjectBtn) {
-            // Mở modal
+
             addSubjectBtn.addEventListener('click', function() {
                 modal.style.display = 'block';
             });
 
-            // Đóng modal khi bấm nút X
             if (closeBtn) {
                 closeBtn.addEventListener('click', function() {
                     modal.style.display = 'none';
@@ -107,7 +105,6 @@
                 });
             }
 
-            // Đóng modal khi bấm Hủy
             if (cancelBtn) {
                 cancelBtn.addEventListener('click', function() {
                     modal.style.display = 'none';
@@ -115,7 +112,6 @@
                 });
             }
 
-            // Đóng modal khi bấm ngoài modal
             window.addEventListener('click', function(e) {
                 if (e.target == modal) {
                     modal.style.display = 'none';
@@ -124,7 +120,6 @@
             });
         }
 
-        // 2. Logic Tìm kiếm môn học (Chạy độc lập)
         const subjInput = document.getElementById('subjectSearch');
         if (subjInput) {
             subjInput.addEventListener('keypress', function(e) {

@@ -23,7 +23,7 @@
             </div>
             <div class="header-right-group">
                 <div class="search-box header-search">
-                    <input type="text" placeholder="Find quiz...">
+                    <input type="text" id="quizSearch" placeholder="Find quiz..." value="{{ query|default:'' }}">
                     <i class="fas fa-search"></i>
                 </div>
                 {% if user.is_authenticated and user.role == 'admin' %}
@@ -84,26 +84,21 @@
         const cancelBtn = document.getElementById('cancelBtn');
         const form = document.getElementById('addQuizForm');
 
-        // Note: Lắng nghe điều kiện modal tồn tại trước khi gắn sự kiện
         if (addQuizBtn && modal) {
-            // Open modal
             addQuizBtn.addEventListener('click', function() {
                 modal.style.display = 'block';
             });
 
-            // Close modal when clicking X button
             closeBtn.addEventListener('click', function() {
                 modal.style.display = 'none';
                 form.reset();
             });
 
-            // Close modal when clicking Cancel button
             cancelBtn.addEventListener('click', function() {
                 modal.style.display = 'none';
                 form.reset();
             });
 
-            // Close modal when clicking outside
             window.addEventListener('click', function(e) {
                 if (e.target == modal) {
                     modal.style.display = 'none';
@@ -111,7 +106,6 @@
                 }
             });
 
-            // Handle form submission
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
                 console.log('Form submitted');
@@ -123,13 +117,21 @@
             });
         }
 
-        // Back button functionality
+        const quizInput = document.getElementById('quizSearch');
+        if (quizInput) {
+            quizInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const q = quizInput.value.trim();
+                    window.location.href = '{% url "quiz_list" subject.id %}?q=' + encodeURIComponent(q);
+                }
+            });
+        }
+
         document.querySelector('.back-button').addEventListener('click', function(e) {
             e.preventDefault();
             window.history.back();
         });
 
-        // Edit button functionality
         document.querySelectorAll('.edit-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 console.log('Edit quiz:', this.closest('.quiz-item'));

@@ -1,4 +1,3 @@
-/* Styles for exam and result pages */
 
 .exam-header h2 {
     font-size: 24px;
@@ -95,14 +94,11 @@
 }
 
 
-/* =========================================
-   Đồng hồ đếm ngược (Countdown Timer)
-   ========================================= */
 #countdown-timer {
     position: fixed;
     top: 40px;
     right: 20px;
-    background-color: #1a3a52; /* Màu xanh đen đồng bộ với theme */
+    background-color: #1a3a52; 
     color: white;
     padding: 12px 25px;
     border-radius: 8px;
@@ -116,7 +112,6 @@
     transition: background-color 0.3s;
 }
 
-/* Hiệu ứng nhấp nháy cảnh báo khi sắp hết giờ */
 @keyframes pulseAlert {
     0% { transform: scale(1); }
     50% { transform: scale(1.05); background-color: #c0392b; }
@@ -124,13 +119,11 @@
 }
 
 .time-warning {
-    background-color: #e74c3c !important; /* Đổi sang màu đỏ */
+    background-color: #e74c3c !important; 
     animation: pulseAlert 1s infinite;
 }
 
-/* =========================================
-   Layout trang làm bài (Exam Page)
-   ========================================= */
+
 .exam-main {
     padding: 40px 0;
 }
@@ -147,11 +140,7 @@
     margin-top: 40px;
 }
 
-/* =========================================
-   Layout trang Xem lại kết quả (Review Page)
-   ========================================= */
 
-/* Ghi đè margin-bottom cho phần info trên trang Review */
 .exam-info.review-info {
     margin-bottom: 20px;
 }
@@ -160,7 +149,6 @@
     color: #2ecc71;
 }
 
-/* Nút quay lại danh sách */
 .link-return {
     margin-left: auto;
     font-weight: bold;
@@ -168,7 +156,6 @@
     text-decoration: underline;
 }
 
-/* Trạng thái đáp án */
 .opt-correct {
     background-color: #d4edda;
     border: 1px solid #c3e6cb;
@@ -187,12 +174,10 @@
     padding: 5px;
 }
 
-/* Đảm bảo label chiếm hết chiều rộng để icon kết quả có thể ép sang phải */
 .options label {
     width: 100%;
 }
 
-/* Icon check và cross */
 .icon-check-mark {
     color: #28a745;
     margin-left: auto;
@@ -203,7 +188,6 @@
     margin-left: auto;
 }
 
-/* Hộp giải thích */
 .explanation-box {
     margin-top: 15px;
     padding: 15px;

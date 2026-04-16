@@ -82,7 +82,6 @@
         {% endif %}
     </main>
 
-    <!-- modal for new account (simple) -->
     <div id="addAccountModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -114,7 +113,6 @@
         </div>
     </div>
 
-    <!-- modal for edit account -->
     <div id="editAccountModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -144,7 +142,6 @@
     </div>
 
     <script>
-        // search redirect
         const acctInput = document.getElementById('accountSearch');
         if (acctInput) {
             acctInput.addEventListener('keypress', function(e) {
@@ -155,7 +152,6 @@
             });
         }
 
-        // modal logic for add/edit/delete
         const accModal = document.getElementById('addAccountModal');
         const addAccountBtn = document.getElementById('addAccountBtn');
         const closeAcc = document.querySelector('#addAccountModal .close');
@@ -186,7 +182,6 @@
             if (e.target === editModal) hideModal(editModal);
         });
 
-        // submit add form via AJAX
         accForm.addEventListener('submit', function(e){
             e.preventDefault();
             const data = new FormData(accForm);
@@ -203,7 +198,6 @@
             });
         });
 
-        // wire up edit buttons
         document.querySelectorAll('.edit-btn').forEach(btn=>{
             btn.addEventListener('click', function(){
                 const tr = this.closest('tr');
@@ -231,7 +225,6 @@
             });
         });
 
-        // delete handlers
         document.querySelectorAll('.delete-btn').forEach(btn=>{
             btn.addEventListener('click', function(){
                 if(!confirm('Remove this user?')) return;
